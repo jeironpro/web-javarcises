@@ -3,358 +3,344 @@
 // contenedor de resultados que se redibuja al cambiar filtros o página.
 
 import { JAVARCISES } from "../data/ejercicios.js";
-import { paginar } from "./paginacion.js";
-import {
-  crearIcono,
-  renderTarjeta,
-  renderPaginador,
-  renderDetalle,
-  renderVacio,
-} from "./render.js";
+import { paginate } from "./paginacion.js";
+import { createIcon, renderCard, renderPagination, renderDetail, renderEmpty } from "./render.js";
 
-const elementoApp = document.querySelector("#app");
-const elementoEstadisticas = document.querySelector("#estadisticas");
-const elementoResultados = document.createElement("div");
-elementoResultados.id = "resultados";
+const appElement = document.querySelector("#app");
+const statsElement = document.querySelector("#stats");
+const resultsElement = document.createElement("div");
+resultsElement.id = "results";
 
 // Estado de la aplicación (se conserva entre renders).
-const estado = {
-  coleccion: "ejercicios", // clave de la colección activa
-  pagina: 1,
-  nivel: "todos", // número de nivel o "todos"
-  busqueda: "",
+const state = {
+    collection: "exercises", // clave de la colección activa
+    page: 1,
+    level: "all", // número de nivel o "all"
+    query: "",
 };
 
 // --- Utilidades sobre los datos ----------------------------------------------
 
-function obtenerColecciones() {
-  return JAVARCISES.colecciones;
+function getCollections() {
+    return JAVARCISES.collections;
 }
 
-function obtenerColeccion(clave) {
-  return (
-    JAVARCISES.colecciones.find((coleccion) => coleccion.clave === clave) ??
-    JAVARCISES.colecciones[0]
-  );
+function getCollection(key) {
+    return (
+        JAVARCISES.collections.find((collection) => collection.key === key) ??
+        JAVARCISES.collections[0]
+    );
 }
 
 /** Niveles presentes en una colección, ordenados y con su nombre. */
-function nivelesDeColeccion(coleccion) {
-  const niveles = [];
-  for (const item of coleccion.items) {
-    if (!niveles.some((nivel) => nivel.numero === item.nivel)) {
-      niveles.push({ numero: item.nivel, nombre: item.nombreNivel });
+function levelsOfCollection(collection) {
+    const levels = [];
+    for (const item of collection.items) {
+        if (!levels.some((level) => level.number === item.level)) {
+            levels.push({ number: item.level, name: item.levelName });
+        }
     }
-  }
-  return niveles.sort((a, b) => a.numero - b.numero);
+    return levels.sort((a, b) => a.number - b.number);
 }
 
 /** Aplica el filtro por nivel y la búsqueda por texto a una colección. */
-function filtrarItems(coleccion) {
-  const busqueda = estado.busqueda.trim().toLowerCase();
-  return coleccion.items.filter((item) => {
-    if (estado.nivel !== "todos" && item.nivel !== Number(estado.nivel)) {
-      return false;
-    }
-    if (busqueda === "") {
-      return true;
-    }
-    const campos = [item.titulo, item.nombreNivel, item.categoria ?? "", ...item.temas];
-    return campos.some((campo) => campo.toLowerCase().includes(busqueda));
-  });
+function filterItems(collection) {
+    const query = state.query.trim().toLowerCase();
+    return collection.items.filter((item) => {
+        if (state.level !== "all" && item.level !== Number(state.level)) {
+            return false;
+        }
+        if (query === "") {
+            return true;
+        }
+        const fields = [item.title, item.levelName, item.category ?? "", ...item.topics];
+        return fields.some((field) => field.toLowerCase().includes(query));
+    });
 }
 
 // --- Barra de filtros (pestañas, nivel y búsqueda) -----------------------------
 
-function renderBarra() {
-  const coleccion = obtenerColeccion(estado.coleccion);
+function renderFilterBar() {
+    const collection = getCollection(state.collection);
 
-  const barra = document.createElement("div");
-  barra.className = "barra";
+    const bar = document.createElement("div");
+    bar.className = "filter-bar";
 
-  // Pestañas de colección (el clic lo gestiona la delegación global).
-  const pestanas = document.createElement("div");
-  pestanas.className = "pestanas";
-  pestanas.setAttribute("role", "group");
-  pestanas.setAttribute("aria-label", "Elegir colección de ejercicios");
-  for (const candidata of obtenerColecciones()) {
-    const boton = document.createElement("button");
-    boton.type = "button";
-    boton.className = "pestana";
-    boton.dataset.coleccion = candidata.clave;
-    const activa = candidata.clave === estado.coleccion;
-    boton.append(
-      crearIcono(candidata.clave === "ejercicios" ? "code" : "design_services"),
-      document.createTextNode(candidata.nombre)
-    );
-    boton.setAttribute("aria-pressed", String(activa));
-    if (activa) {
-      boton.classList.add("pestana--activa");
+    // Pestañas de colección (el clic lo gestiona la delegación global).
+    const tabs = document.createElement("div");
+    tabs.className = "tabs";
+    tabs.setAttribute("role", "group");
+    tabs.setAttribute("aria-label", "Elegir colección de ejercicios");
+    for (const candidate of getCollections()) {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "tab";
+        button.dataset.collection = candidate.key;
+        const active = candidate.key === state.collection;
+        button.append(
+            createIcon(candidate.key === "exercises" ? "code" : "design_services"),
+            document.createTextNode(candidate.name)
+        );
+        button.setAttribute("aria-pressed", String(active));
+        if (active) {
+            button.classList.add("tab--active");
+        }
+        tabs.append(button);
     }
-    pestanas.append(boton);
-  }
-  barra.append(pestanas);
+    bar.append(tabs);
 
-  // Selector de nivel (las opciones dependen de la colección activa).
-  const campoNivel = document.createElement("div");
-  campoNivel.className = "campo";
-  const etiquetaNivel = document.createElement("label");
-  etiquetaNivel.htmlFor = "filtro-nivel";
-  etiquetaNivel.textContent = "Nivel";
-  const select = document.createElement("select");
-  select.id = "filtro-nivel";
-  const opcionTodos = document.createElement("option");
-  opcionTodos.value = "todos";
-  opcionTodos.textContent = "Todos los niveles";
-  select.append(opcionTodos);
-  for (const nivel of nivelesDeColeccion(coleccion)) {
-    const opcion = document.createElement("option");
-    opcion.value = String(nivel.numero);
-    opcion.textContent = `${nivel.numero} — ${nivel.nombre}`;
-    select.append(opcion);
-  }
-  select.value = estado.nivel === "todos" ? "todos" : String(estado.nivel);
-  select.addEventListener("change", () => {
-    estado.nivel = select.value === "todos" ? "todos" : Number(select.value);
-    estado.pagina = 1;
-    renderResultados();
-  });
-  campoNivel.append(etiquetaNivel, select);
-  barra.append(campoNivel);
+    // Selector de nivel (las opciones dependen de la colección activa).
+    const levelField = document.createElement("div");
+    levelField.className = "field";
+    const levelLabel = document.createElement("label");
+    levelLabel.htmlFor = "level-filter";
+    levelLabel.textContent = "Nivel";
+    const select = document.createElement("select");
+    select.id = "level-filter";
+    const allOption = document.createElement("option");
+    allOption.value = "all";
+    allOption.textContent = "Todos los niveles";
+    select.append(allOption);
+    for (const level of levelsOfCollection(collection)) {
+        const option = document.createElement("option");
+        option.value = String(level.number);
+        option.textContent = `${level.number} — ${level.name}`;
+        select.append(option);
+    }
+    select.value = state.level === "all" ? "all" : String(state.level);
+    select.addEventListener("change", () => {
+        state.level = select.value === "all" ? "all" : Number(select.value);
+        state.page = 1;
+        renderResults();
+    });
+    levelField.append(levelLabel, select);
+    bar.append(levelField);
 
-  // Búsqueda por texto.
-  const campoBusqueda = document.createElement("div");
-  campoBusqueda.className = "campo campo--busqueda";
-  const etiquetaBusqueda = document.createElement("label");
-  etiquetaBusqueda.htmlFor = "busqueda";
-  etiquetaBusqueda.textContent = "Buscar";
-  const entrada = document.createElement("div");
-  entrada.className = "campo__entrada";
-  entrada.append(crearIcono("search"));
-  const input = document.createElement("input");
-  input.type = "search";
-  input.id = "busqueda";
-  input.placeholder = "Título, tema, nivel…";
-  input.value = estado.busqueda;
-  input.addEventListener("input", () => {
-    estado.busqueda = input.value;
-    estado.pagina = 1;
-    renderResultados();
-  });
-  entrada.append(input);
-  campoBusqueda.append(etiquetaBusqueda, entrada);
-  barra.append(campoBusqueda);
+    // Búsqueda por texto.
+    const searchField = document.createElement("div");
+    searchField.className = "field field--search";
+    const searchLabel = document.createElement("label");
+    searchLabel.htmlFor = "search";
+    searchLabel.textContent = "Buscar";
+    const inputWrap = document.createElement("div");
+    inputWrap.className = "field__control";
+    inputWrap.append(createIcon("search"));
+    const input = document.createElement("input");
+    input.type = "search";
+    input.id = "search";
+    input.placeholder = "Título, tema, nivel…";
+    input.value = state.query;
+    input.addEventListener("input", () => {
+        state.query = input.value;
+        state.page = 1;
+        renderResults();
+    });
+    inputWrap.append(input);
+    searchField.append(searchLabel, inputWrap);
+    bar.append(searchField);
 
-  return barra;
+    return bar;
 }
 
 // --- Vista de listado ----------------------------------------------------------
 
-function renderResultados() {
-  const coleccion = obtenerColeccion(estado.coleccion);
-  const filtrados = filtrarItems(coleccion);
-  const resultado = paginar(filtrados, estado.pagina);
+function renderResults() {
+    const collection = getCollection(state.collection);
+    const filtered = filterItems(collection);
+    const result = paginate(filtered, state.page);
 
-  const contenedor = document.createElement("div");
+    const container = document.createElement("div");
 
-  // Contador de resultados (anunciado por lectores de pantalla).
-  const contador = document.createElement("p");
-  contador.className = "contador";
-  contador.setAttribute("aria-live", "polite");
-  contador.textContent =
-    filtrados.length === 0
-      ? "0 fichas"
-      : `Mostrando ${resultado.desde}–${resultado.hasta} de ${resultado.total} fichas`;
-  contenedor.append(contador);
+    // Contador de resultados (anunciado por lectores de pantalla).
+    const counter = document.createElement("p");
+    counter.className = "counter";
+    counter.setAttribute("aria-live", "polite");
+    counter.textContent =
+        filtered.length === 0
+            ? "0 fichas"
+            : `Mostrando ${result.from}–${result.to} de ${result.total} fichas`;
+    container.append(counter);
 
-  if (filtrados.length === 0) {
-    contenedor.append(
-      renderVacio(
-        "Ninguna ficha coincide con los filtros actuales. Prueba con otro término o borra los filtros.",
-        limpiarFiltros
-      )
-    );
-  } else {
-    const grilla = document.createElement("div");
-    grilla.className = "grilla";
-    for (const item of resultado.items) {
-      grilla.append(renderTarjeta(item));
+    if (filtered.length === 0) {
+        container.append(
+            renderEmpty({
+                message:
+                    "Ninguna ficha coincide con los filtros actuales. Prueba con otro término o borra los filtros.",
+                action: { label: "Limpiar filtros", onClick: clearFilters },
+            })
+        );
+    } else {
+        const cardGrid = document.createElement("div");
+        cardGrid.className = "card-grid";
+        for (const item of result.items) {
+            cardGrid.append(renderCard(item));
+        }
+        container.append(cardGrid);
+
+        if (result.totalPages > 1) {
+            container.append(
+                renderPagination({
+                    page: result.page,
+                    totalPages: result.totalPages,
+                    onGoToPage: (page) => {
+                        state.page = page;
+                        renderResults();
+                        window.scrollTo(0, 0);
+                    },
+                })
+            );
+        }
     }
-    contenedor.append(grilla);
 
-    if (resultado.totalPaginas > 1) {
-      contenedor.append(
-        renderPaginador({
-          pagina: resultado.pagina,
-          totalPaginas: resultado.totalPaginas,
-          alIrAPagina: (pagina) => {
-            estado.pagina = pagina;
-            renderResultados();
-            window.scrollTo(0, 0);
-          },
-        })
-      );
-    }
-  }
-
-  elementoResultados.replaceChildren(contenedor);
+    resultsElement.replaceChildren(container);
 }
 
-function limpiarFiltros() {
-  estado.nivel = "todos";
-  estado.busqueda = "";
-  renderVistaLista();
+function clearFilters() {
+    state.level = "all";
+    state.query = "";
+    renderListView();
 }
 
-function renderVistaLista() {
-  elementoApp.replaceChildren(renderBarra(), elementoResultados);
-  renderResultados();
-  document.title = "Javarcises — Ejercicios de programación en Java";
+function renderListView() {
+    appElement.replaceChildren(renderFilterBar(), resultsElement);
+    renderResults();
+    document.title = "Javarcises — Ejercicios de programación en Java";
 }
 
 // --- Vista de detalle -----------------------------------------------------------
 
-function renderVistaDetalle(ruta) {
-  const coleccion = obtenerColeccion(ruta.coleccion);
-  const indice = coleccion.items.findIndex((item) => item.numero === ruta.numero);
+function renderDetailView(route) {
+    const collection = getCollection(route.collection);
+    const index = collection.items.findIndex((item) => item.number === route.number);
 
-  if (indice === -1) {
-    const contenedor = document.createElement("div");
-    contenedor.className = "vacio";
-    contenedor.append(crearIcono("error"));
-    const titulo = document.createElement("h2");
-    titulo.className = "vacio__titulo";
-    titulo.textContent = "Ficha no encontrada";
-    contenedor.append(titulo);
-    const texto = document.createElement("p");
-    texto.className = "vacio__texto";
-    texto.textContent = "El número de ficha no existe en esta colección.";
-    contenedor.append(texto);
-    const volver = document.createElement("a");
-    volver.className = "boton boton--secundario detalle__volver";
-    volver.href = "#/";
-    volver.textContent = "Volver al listado";
-    contenedor.append(volver);
-    elementoApp.replaceChildren(contenedor);
-    return;
-  }
+    if (index === -1) {
+        appElement.replaceChildren(
+            renderEmpty({
+                icon: "error",
+                title: "Ficha no encontrada",
+                message: "El número de ficha no existe en esta colección.",
+                action: { label: "Volver al listado", href: "#/" },
+            })
+        );
+        return;
+    }
 
-  const item = coleccion.items[indice];
-  const anterior = coleccion.items[indice - 1] ?? null;
-  const siguiente = coleccion.items[indice + 1] ?? null;
-  elementoApp.replaceChildren(renderDetalle(item, coleccion, anterior, siguiente));
-  document.title = `${item.titulo} — Javarcises`;
+    const item = collection.items[index];
+    const previous = collection.items[index - 1] ?? null;
+    const next = collection.items[index + 1] ?? null;
+    appElement.replaceChildren(renderDetail(item, collection, previous, next));
+    document.title = `${item.title} — Javarcises`;
 
-  // Mueve el foco al título para lectores de pantalla (sin desplazar la página).
-  const tituloFicha = document.querySelector("#titulo-ficha");
-  if (tituloFicha && document.activeElement !== tituloFicha) {
-    tituloFicha.focus({ preventScroll: true });
-  }
+    // Mueve el foco al título para lectores de pantalla (sin desplazar la página).
+    const cardTitle = document.querySelector("#card-title");
+    if (cardTitle && document.activeElement !== cardTitle) {
+        cardTitle.focus({ preventScroll: true });
+    }
 }
 
 // --- Routing y arranque ----------------------------------------------------------
 
-/** Interpreta el hash: #/ficha/<coleccion>/<numero> → detalle; lo demás → listado. */
-function leerRuta() {
-  const coincidencia = location.hash.match(/^#\/ficha\/(ejercicios|problemas)\/(\d+)$/);
-  if (coincidencia) {
-    return { vista: "detalle", coleccion: coincidencia[1], numero: Number(coincidencia[2]) };
-  }
-  return { vista: "lista" };
+/** Interpreta el hash: #/card/<coleccion>/<numero> → detalle; lo demás → listado. */
+function parseRoute() {
+    const match = location.hash.match(/^#\/card\/(exercises|problems)\/(\d+)$/);
+    if (match) {
+        return { view: "detail", collection: match[1], number: Number(match[2]) };
+    }
+    return { view: "list" };
 }
 
-function renderizar() {
-  const ruta = leerRuta();
-  // En el detalle se ocultan la navegación y el pie para centrar la ficha.
-  document.body.classList.toggle("modo-detalle", ruta.vista === "detalle");
-  if (ruta.vista === "detalle") {
-    renderVistaDetalle(ruta);
-  } else {
-    renderVistaLista();
-  }
+function render() {
+    const route = parseRoute();
+    // En el detalle se ocultan la navegación y el pie para centrar la ficha.
+    document.body.classList.toggle("detail-mode", route.view === "detail");
+    if (route.view === "detail") {
+        renderDetailView(route);
+    } else {
+        renderListView();
+    }
 }
 
 /** Banda de estadísticas: números reales de cada colección. */
-function renderEstadisticas() {
-  const grid = document.createElement("div");
-  grid.className = "stats__grid";
+function renderStats() {
+    const grid = document.createElement("div");
+    grid.className = "stats__grid";
 
-  const agregarStat = (etiqueta, valor) => {
-    const stat = document.createElement("div");
-    stat.className = "stat";
-    const label = document.createElement("p");
-    label.className = "stat__label";
-    label.textContent = etiqueta;
-    const value = document.createElement("p");
-    value.className = "stat__value";
-    const num = document.createElement("span");
-    num.className = "stat__num";
-    num.textContent = valor;
-    value.append(num);
-    stat.append(label, value);
-    grid.append(stat);
-  };
+    const addStat = (label, value) => {
+        const stat = document.createElement("div");
+        stat.className = "stat";
+        const labelElement = document.createElement("p");
+        labelElement.className = "stat__label";
+        labelElement.textContent = label;
+        const valueElement = document.createElement("p");
+        valueElement.className = "stat__value";
+        const number = document.createElement("span");
+        number.className = "stat__num";
+        number.textContent = value;
+        valueElement.append(number);
+        stat.append(labelElement, valueElement);
+        grid.append(stat);
+    };
 
-  for (const coleccion of obtenerColecciones()) {
-    agregarStat(coleccion.nombre, String(coleccion.items.length));
-  }
-
-  const niveles = new Set();
-  for (const coleccion of obtenerColecciones()) {
-    for (const item of coleccion.items) {
-      niveles.add(`${coleccion.clave}-${item.nivel}`);
+    for (const collection of getCollections()) {
+        addStat(collection.name, String(collection.items.length));
     }
-  }
-  agregarStat("Niveles de dificultad", String(niveles.size));
 
-  elementoEstadisticas.replaceChildren(grid);
+    const levels = new Set();
+    for (const collection of getCollections()) {
+        for (const item of collection.items) {
+            levels.add(`${collection.key}-${item.level}`);
+        }
+    }
+    addStat("Niveles de dificultad", String(levels.size));
+
+    statsElement.replaceChildren(grid);
 }
 
 /**
  * Cambia la colección activa y redibuja la vista de listado.
  * Lo usan las pestañas, los enlaces del nav y el botón del hero.
  */
-function seleccionarColeccion(clave) {
-  if (estado.coleccion === clave) {
-    return;
-  }
-  estado.coleccion = clave;
-  estado.pagina = 1;
-  estado.nivel = "todos";
-  renderVistaLista();
-  sincronizarControlesColeccion();
+function selectCollection(key) {
+    if (state.collection === key) {
+        return;
+    }
+    state.collection = key;
+    state.page = 1;
+    state.level = "all";
+    renderListView();
+    syncCollectionControls();
 }
 
 /** Mantiene sincronizados todos los controles que cambian de colección. */
-function sincronizarControlesColeccion() {
-  for (const boton of document.querySelectorAll("[data-coleccion]")) {
-    const activa = boton.dataset.coleccion === estado.coleccion;
-    boton.setAttribute("aria-pressed", String(activa));
-    boton.classList.toggle("pestana--activa", activa);
-    boton.classList.toggle("nav__enlace--activa", activa);
-  }
+function syncCollectionControls() {
+    for (const button of document.querySelectorAll("[data-collection]")) {
+        const active = button.dataset.collection === state.collection;
+        button.setAttribute("aria-pressed", String(active));
+        button.classList.toggle("tab--active", active);
+        button.classList.toggle("nav__link--active", active);
+    }
 }
 
-function inicializar() {
-  renderEstadisticas();
-  sincronizarControlesColeccion();
+function init() {
+    renderStats();
+    syncCollectionControls();
 
-  // Delegación: cualquier control [data-coleccion] cambia la colección.
-  document.addEventListener("click", (evento) => {
-    const boton = evento.target.closest("[data-coleccion]");
-    if (!boton) {
-      return;
-    }
-    seleccionarColeccion(boton.dataset.coleccion);
-    if (boton.dataset.desplaza) {
-      const destino = document.querySelector(`#${boton.dataset.desplaza}`);
-      const sinMovimiento = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-      destino?.scrollIntoView({ behavior: sinMovimiento ? "auto" : "smooth" });
-    }
-  });
+    // Delegación: cualquier control [data-collection] cambia la colección.
+    document.addEventListener("click", (event) => {
+        const button = event.target.closest("[data-collection]");
+        if (!button) {
+            return;
+        }
+        selectCollection(button.dataset.collection);
+        if (button.dataset.scrollTo) {
+            const target = document.querySelector(`#${button.dataset.scrollTo}`);
+            const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+            target?.scrollIntoView({ behavior: reducedMotion ? "auto" : "smooth" });
+        }
+    });
 
-  window.addEventListener("hashchange", renderizar);
-  renderizar();
+    window.addEventListener("hashchange", render);
+    render();
 }
 
-inicializar();
+init();
