@@ -4,6 +4,7 @@
 // de los ejercicios (markdown ya parseado) no puede inyectar marcado.
 
 import { pageNumbers } from "./paginacion.js";
+import { highlightJavaInto } from "./syntax-highlight.js";
 
 /**
  * Crea un icono de Material Symbols (decorativo: aria-hidden).
@@ -72,6 +73,7 @@ export function renderStars(difficulty) {
 /**
  * Renderiza un bloque de código como panel claro con hairline y, si se
  * indica una etiqueta (p. ej. el lenguaje), una cabecera sin chrome falso.
+ * Para Java, aplica resaltado de sintaxis con nodos DOM seguros.
  */
 function renderCodeBlock(code, label = "") {
     const container = document.createElement("div");
@@ -87,8 +89,15 @@ function renderCodeBlock(code, label = "") {
     const pre = document.createElement("pre");
     pre.className = "block__code-body";
     const codeElement = document.createElement("code");
-    codeElement.textContent = code;
-    pre.append(codeElement);
+
+    // Aplicar resaltado de sintaxis solo para Java.
+    if (label.toLowerCase() === "java") {
+        highlightJavaInto(pre, code);
+    } else {
+        codeElement.textContent = code;
+        pre.append(codeElement);
+    }
+
     container.append(pre);
     return container;
 }
