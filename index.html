@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Javarcises — Ejercicios de programación en Java</title>
+    <meta
+      name="description"
+      content="Catálogo con los ejercicios de programación en Java del proyecto Javarcises: listado paginado, filtros por nivel y búsqueda."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/styles.css" />
+  </head>
+  <body>
+    <a class="salto" href="#contenido">Saltar al contenido</a>
+
+    <header class="cabecera">
+      <div class="cabecera__interior">
+        <p class="cabecera__pre">Programación en Java</p>
+        <h1 class="cabecera__titulo">Javarcises</h1>
+        <p class="cabecera__subtitulo">
+          Ejercicios de programación en Java, del nivel básico al experto, listos para practicar.
+        </p>
+        <div class="estadisticas" id="estadisticas" aria-label="Resumen del catálogo"></div>
+      </div>
+    </header>
+
+    <main id="contenido" class="contenido" tabindex="-1">
+      <div id="app" class="app"></div>
+    </main>
+
+    <footer class="pie">
+      <div class="pie__interior">
+        <p>&copy; Javarcises 2026</p>
+        <p>
+          Código fuente en
+          <a href="https://github.com/jeironpro/web-javarcises">GitHub</a>
+        </p>
+      </div>
+    </footer>
+
+    <script type="module" src="js/app.js"></script>
+  </body>
+</html>
