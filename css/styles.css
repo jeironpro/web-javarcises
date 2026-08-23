@@ -467,7 +467,7 @@ em::after {
     margin-bottom: var(--space-2xl);
 }
 
-/* Lista de especificación: pares clave/valor en mono (hero y detalle) */
+/* Hoja de especificación: filas clave/valor en mono, editorial y sin caja (hero y detalle) */
 .spec {
     margin: 0;
     padding-top: var(--space-lg);
@@ -484,7 +484,7 @@ em::after {
 
 .spec__row {
     display: grid;
-    grid-template-columns: 6.5rem 1fr;
+    grid-template-columns: 7rem 1fr;
     gap: 1rem;
     align-items: baseline;
 }
@@ -493,11 +493,16 @@ em::after {
     text-transform: uppercase;
     letter-spacing: 0.1em;
     color: var(--color-muted);
-    opacity: 0.7;
+    opacity: 0.8;
 }
 
 .spec__row dd {
     color: var(--color-ink-2);
+    min-width: 0;
+}
+
+.spec__row .difficulty {
+    margin-inline-start: 0;
 }
 
 /* --- Banda de estadísticas ----------------------------------------------------------- */
@@ -939,14 +944,15 @@ em::after {
 /* Chips de tema */
 .chip {
     display: inline-block;
-    padding: 0.2rem 0.6rem;
+    padding: 0.25rem 0.65rem;
     border: 1px solid var(--color-rule);
     border-radius: var(--radius-pill);
-    background: transparent;
-    color: var(--color-muted);
+    background: var(--color-paper-3);
+    color: var(--color-ink-2);
     font-family: var(--font-label);
     font-size: 10.5px;
     line-height: 1.5;
+    letter-spacing: 0.02em;
 }
 
 /* Estrellas de dificultad (amarillas) */
@@ -1091,6 +1097,21 @@ em::after {
 
 .detail__topics {
     display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+}
+
+.detail__topics-label {
+    font-family: var(--font-label);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--color-muted);
+}
+
+.detail__topics-list {
+    display: flex;
     flex-wrap: wrap;
     gap: var(--space-2xs);
 }
@@ -1178,6 +1199,45 @@ em::after {
     background:
         radial-gradient(80% 80% at 100% 0%, var(--color-paper-emit) 0%, transparent 60%),
         var(--color-paper-2);
+}
+
+/* Tokens de resaltado de sintaxis para Java */
+.token--keyword {
+    color: oklch(0.45 0.12 280); /* morado */
+    font-weight: 500;
+}
+
+.token--type {
+    color: oklch(0.5 0.14 200); /* azul */
+}
+
+.token--string {
+    color: oklch(0.5 0.12 145); /* verde */
+}
+
+.token--char {
+    color: oklch(0.5 0.12 145); /* verde */
+}
+
+.token--number {
+    color: oklch(0.5 0.15 50); /* ámbar */
+}
+
+.token--comment {
+    color: oklch(0.55 0.01 265); /* gris */
+    font-style: italic;
+}
+
+.token--operator {
+    color: oklch(0.4 0.08 265); /* gris oscuro */
+}
+
+.token--punctuation {
+    color: var(--color-ink-2);
+}
+
+.token--identifier {
+    color: var(--color-ink);
 }
 
 .block__code-header {
@@ -1438,10 +1498,6 @@ em::after {
     }
 
     .detail__card-nav {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-
-    .spec {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 }

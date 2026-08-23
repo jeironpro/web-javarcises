@@ -32,6 +32,33 @@ export function countStars(value) {
 }
 
 /**
+ * Divide una lista de temas separada por comas, respetando los paréntesis:
+ * "a (x, y), b" → ["a (x, y)", "b"]. Así no se parte "operadores (&&, ||)".
+ */
+export function splitTopics(value) {
+    const parts = [];
+    let current = "";
+    let depth = 0;
+    for (const char of String(value ?? "")) {
+        if (char === "(") {
+            depth += 1;
+        } else if (char === ")") {
+            depth = Math.max(0, depth - 1);
+        }
+        if (char === "," && depth === 0) {
+            parts.push(current.trim());
+            current = "";
+        } else {
+            current += char;
+        }
+    }
+    if (current.trim()) {
+        parts.push(current.trim());
+    }
+    return parts;
+}
+
+/**
  * Convierte un conjunto de líneas de una sección en una lista de bloques
  * tipados: paragraph | list | code | example | hint.
  */
@@ -213,10 +240,7 @@ export function parseFile(fileName, content) {
         title: title ?? base.replace(/\.[^.]+$/, ""),
         level: levelSeparator >= 0 ? Number.parseInt(levelValue.slice(0, levelSeparator), 10) : 0,
         levelName: levelSeparator >= 0 ? levelValue.slice(levelSeparator + 3).trim() : "",
-        topics: (meta["Tema(s)"] ?? "")
-            .split(",")
-            .map((topic) => topic.trim())
-            .filter(Boolean),
+        topics: splitTopics(meta["Tema(s)"]),
         difficulty: countStars(meta["Dificultad estimada"]),
         category: meta["Categoría"] ?? null,
         oopFocus: meta["Enfoque POO"] ?? null,
