@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="es">
+<html lang="es" data-theme="lumen">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -8,11 +8,12 @@
       name="description"
       content="Catálogo con los ejercicios de programación en Java del proyecto Javarcises: listado paginado, filtros por nivel y búsqueda."
     />
+    <meta name="theme-color" content="#f6f7fb" />
     <link rel="icon" type="image/svg+xml" href="favicon.svg" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"
       rel="stylesheet"
     />
     <link
@@ -24,28 +25,126 @@
   <body>
     <a class="salto" href="#contenido">Saltar al contenido</a>
 
-    <header class="cabecera">
-      <div class="cabecera__interior">
-        <p class="cabecera__pre">Programación en Java</p>
-        <h1 class="cabecera__titulo">Javarcises</h1>
-        <p class="cabecera__subtitulo">
-          Ejercicios de programación en Java, del nivel básico al experto, listos para practicar.
-        </p>
-        <div class="estadisticas" id="estadisticas" aria-label="Resumen del catálogo"></div>
+    <!-- Navegación: píldora flotante (patrón N5 del tema Lumen) -->
+    <header class="nav" role="banner">
+      <div class="nav__pildora">
+        <a class="nav__marca-enlace" href="#/" aria-label="Javarcises — inicio">
+          <span class="nav__marca" aria-hidden="true"></span>
+          Javarcises
+        </a>
+        <nav class="nav__enlaces" aria-label="Colecciones">
+          <button
+            type="button"
+            class="nav__enlace"
+            data-coleccion="ejercicios"
+            data-desplaza="catalogo"
+            aria-pressed="true"
+          >
+            Ejercicios
+          </button>
+          <button
+            type="button"
+            class="nav__enlace"
+            data-coleccion="problemas"
+            data-desplaza="catalogo"
+            aria-pressed="false"
+          >
+            Problemas de diseño
+          </button>
+        </nav>
+        <div class="nav__cta">
+          <a class="btn btn--acento" href="#catalogo">Ver catálogo</a>
+        </div>
       </div>
     </header>
 
-    <main id="contenido" class="contenido" tabindex="-1">
-      <div id="app" class="app"></div>
+    <main id="contenido" tabindex="-1">
+      <!-- Hero: titular serif con pivote de verbo -->
+      <section class="hero" aria-labelledby="titulo-hero">
+        <div class="hero__rejilla" aria-hidden="true"></div>
+        <div class="hero__interior">
+          <p class="eyebrow">
+            <span class="eyebrow__ord">00</span><span class="eyebrow__punto">·</span>Programación en
+            Java
+          </p>
+          <h1 class="hero__titulo" id="titulo-hero">Ejercicios para <em>pensar</em> en Java.</h1>
+          <p class="hero__lede">
+            Catálogo de 81 ejercicios y 30 problemas de diseño, del nivel básico al experto, listos
+            para practicar en consola.
+          </p>
+          <div class="hero__cta">
+            <a class="btn btn--acento" href="#catalogo">Explorar el catálogo</a>
+            <button
+              type="button"
+              class="btn btn--fantasma"
+              data-coleccion="problemas"
+              data-desplaza="catalogo"
+            >
+              Ver problemas de diseño
+            </button>
+          </div>
+          <dl class="hero__spec" aria-label="Especificación del catálogo">
+            <div class="hero__spec-par">
+              <dt>Lenguaje</dt>
+              <dd>Java</dd>
+            </div>
+            <div class="hero__spec-par">
+              <dt>Estilo</dt>
+              <dd>Consola, sin IDE</dd>
+            </div>
+            <div class="hero__spec-par">
+              <dt>Niveles</dt>
+              <dd>1 a 14</dd>
+            </div>
+          </dl>
+        </div>
+      </section>
+
+      <!-- Banda de estadísticas (números reales del catálogo) -->
+      <section class="stats" aria-label="Resumen del catálogo">
+        <div id="estadisticas"></div>
+      </section>
+
+      <!-- Catálogo -->
+      <section class="seccion" id="catalogo" aria-labelledby="titulo-catalogo">
+        <div class="seccion__cabecera">
+          <p class="eyebrow">
+            <span class="eyebrow__ord">01</span><span class="eyebrow__punto">·</span>El catálogo
+          </p>
+          <h2 class="seccion__titulo" id="titulo-catalogo">Listado de fichas.</h2>
+          <p class="seccion__lede">
+            Filtra por nivel o busca por tema. Cada ficha abre el ejercicio completo, con firma,
+            ejemplos y pistas ocultables.
+          </p>
+        </div>
+        <div id="app" class="app"></div>
+      </section>
     </main>
 
+    <!-- Pie: declaración Ft5 con fondo de rejilla -->
     <footer class="pie">
       <div class="pie__interior">
-        <p>&copy; Javarcises 2026</p>
-        <p>
-          Código fuente en
-          <a href="https://github.com/jeironpro/web-javarcises">GitHub</a>
+        <p class="pie__declaracion">
+          Ejercicios de Java, del básico al experto, listos para practicar.
         </p>
+        <div class="pie__meta">
+          <span class="pie__marca" aria-hidden="true"></span>
+          <div class="pie__col">
+            <span class="pie__titulo-col">Código</span>
+            <a href="https://github.com/jeironpro/web-javarcises">GitHub</a>
+            <a href="#/">Inicio</a>
+          </div>
+          <div class="pie__col">
+            <span class="pie__titulo-col">Licencia</span>
+            <a href="LICENSE">MIT</a>
+            <span>Uso libre con atribución</span>
+          </div>
+          <div class="pie__col">
+            <span class="pie__titulo-col">Datos</span>
+            <span>81 ejercicios</span>
+            <span>30 problemas de diseño</span>
+          </div>
+        </div>
       </div>
     </footer>
 

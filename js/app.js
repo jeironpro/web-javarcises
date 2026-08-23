@@ -72,7 +72,7 @@ function renderBarra() {
   const barra = document.createElement("div");
   barra.className = "barra";
 
-  // Pestañas de colección.
+  // Pestañas de colección (el clic lo gestiona la delegación global).
   const pestanas = document.createElement("div");
   pestanas.className = "pestanas";
   pestanas.setAttribute("role", "group");
@@ -81,6 +81,7 @@ function renderBarra() {
     const boton = document.createElement("button");
     boton.type = "button";
     boton.className = "pestana";
+    boton.dataset.coleccion = candidata.clave;
     const activa = candidata.clave === estado.coleccion;
     boton.append(
       crearIcono(candidata.clave === "ejercicios" ? "code" : "design_services"),
@@ -90,15 +91,6 @@ function renderBarra() {
     if (activa) {
       boton.classList.add("pestana--activa");
     }
-    boton.addEventListener("click", () => {
-      if (estado.coleccion === candidata.clave) {
-        return;
-      }
-      estado.coleccion = candidata.clave;
-      estado.pagina = 1;
-      estado.nivel = "todos";
-      renderVistaLista();
-    });
     pestanas.append(boton);
   }
   barra.append(pestanas);
@@ -215,19 +207,7 @@ function limpiarFiltros() {
 }
 
 function renderVistaLista() {
-  const coleccion = obtenerColeccion(estado.coleccion);
-
-  const encabezado = document.createElement("div");
-  encabezado.className = "lista-encabezado";
-  const titulo = document.createElement("h2");
-  titulo.className = "lista-encabezado__titulo";
-  titulo.textContent = coleccion.nombre;
-  const descripcion = document.createElement("p");
-  descripcion.className = "lista-encabezado__descripcion";
-  descripcion.textContent = coleccion.descripcion;
-  encabezado.append(titulo, descripcion);
-
-  elementoApp.replaceChildren(encabezado, renderBarra(), elementoResultados);
+  elementoApp.replaceChildren(renderBarra(), elementoResultados);
   renderResultados();
   document.title = "Javarcises — Ejercicios de programación en Java";
 }
@@ -292,22 +272,29 @@ function renderizar() {
   }
 }
 
-/** Resumen del catálogo en el masthead: cantidades reales de cada colección. */
+/** Banda de estadísticas: números reales de cada colección. */
 function renderEstadisticas() {
-  const lista = document.createElement("ul");
-  lista.className = "estadisticas__lista";
+  const grid = document.createElement("div");
+  grid.className = "stats__grid";
+
+  const agregarStat = (etiqueta, valor) => {
+    const stat = document.createElement("div");
+    stat.className = "stat";
+    const label = document.createElement("p");
+    label.className = "stat__label";
+    label.textContent = etiqueta;
+    const value = document.createElement("p");
+    value.className = "stat__value";
+    const num = document.createElement("span");
+    num.className = "stat__num";
+    num.textContent = valor;
+    value.append(num);
+    stat.append(label, value);
+    grid.append(stat);
+  };
 
   for (const coleccion of obtenerColecciones()) {
-    const elemento = document.createElement("li");
-    elemento.className = "estadistica";
-    const numero = document.createElement("span");
-    numero.className = "estadistica__numero";
-    numero.textContent = String(coleccion.items.length);
-    const etiqueta = document.createElement("span");
-    etiqueta.className = "estadistica__etiqueta";
-    etiqueta.textContent = coleccion.nombre;
-    elemento.append(numero, etiqueta);
-    lista.append(elemento);
+    agregarStat(coleccion.nombre, String(coleccion.items.length));
   }
 
   const niveles = new Set();
@@ -316,22 +303,54 @@ function renderEstadisticas() {
       niveles.add(`${coleccion.clave}-${item.nivel}`);
     }
   }
-  const elementoNiveles = document.createElement("li");
-  elementoNiveles.className = "estadistica";
-  const numeroNiveles = document.createElement("span");
-  numeroNiveles.className = "estadistica__numero";
-  numeroNiveles.textContent = String(niveles.size);
-  const etiquetaNiveles = document.createElement("span");
-  etiquetaNiveles.className = "estadistica__etiqueta";
-  etiquetaNiveles.textContent = "Niveles de dificultad";
-  elementoNiveles.append(numeroNiveles, etiquetaNiveles);
-  lista.append(elementoNiveles);
+  agregarStat("Niveles de dificultad", String(niveles.size));
 
-  elementoEstadisticas.replaceChildren(lista);
+  elementoEstadisticas.replaceChildren(grid);
+}
+
+/**
+ * Cambia la colección activa y redibuja la vista de listado.
+ * Lo usan las pestañas, los enlaces del nav y el botón del hero.
+ */
+function seleccionarColeccion(clave) {
+  if (estado.coleccion === clave) {
+    return;
+  }
+  estado.coleccion = clave;
+  estado.pagina = 1;
+  estado.nivel = "todos";
+  renderVistaLista();
+  sincronizarControlesColeccion();
+}
+
+/** Mantiene sincronizados todos los controles que cambian de colección. */
+function sincronizarControlesColeccion() {
+  for (const boton of document.querySelectorAll("[data-coleccion]")) {
+    const activa = boton.dataset.coleccion === estado.coleccion;
+    boton.setAttribute("aria-pressed", String(activa));
+    boton.classList.toggle("pestana--activa", activa);
+    boton.classList.toggle("nav__enlace--activa", activa);
+  }
 }
 
 function inicializar() {
   renderEstadisticas();
+  sincronizarControlesColeccion();
+
+  // Delegación: cualquier control [data-coleccion] cambia la colección.
+  document.addEventListener("click", (evento) => {
+    const boton = evento.target.closest("[data-coleccion]");
+    if (!boton) {
+      return;
+    }
+    seleccionarColeccion(boton.dataset.coleccion);
+    if (boton.dataset.desplaza) {
+      const destino = document.querySelector(`#${boton.dataset.desplaza}`);
+      const sinMovimiento = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      destino?.scrollIntoView({ behavior: sinMovimiento ? "auto" : "smooth" });
+    }
+  });
+
   window.addEventListener("hashchange", renderizar);
   renderizar();
 }

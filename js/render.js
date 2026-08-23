@@ -69,14 +69,28 @@ export function renderEstrellas(dificultad) {
   return contenedor;
 }
 
-/** Renderiza un bloque de código como panel oscuro sin chrome falso. */
-function renderBloqueCodigo(codigo) {
+/**
+ * Renderiza un bloque de código como panel claro con hairline y, si se
+ * indica una etiqueta (p. ej. el lenguaje), una cabecera sin chrome falso.
+ */
+function renderBloqueCodigo(codigo, etiqueta = "") {
+  const contenedor = document.createElement("div");
+  contenedor.className = "bloque__codigo";
+  if (etiqueta) {
+    const cabecera = document.createElement("div");
+    cabecera.className = "bloque__codigo-cabecera";
+    const texto = document.createElement("span");
+    texto.textContent = etiqueta;
+    cabecera.append(texto);
+    contenedor.append(cabecera);
+  }
   const pre = document.createElement("pre");
-  pre.className = "bloque__codigo";
+  pre.className = "bloque__codigo-cuerpo";
   const code = document.createElement("code");
   code.textContent = codigo;
   pre.append(code);
-  return pre;
+  contenedor.append(pre);
+  return contenedor;
 }
 
 /** Renderiza un bloque tipado (parrafo | lista | codigo | ejemplo | pista). */
@@ -99,7 +113,7 @@ export function renderBloque(bloque) {
       return lista;
     }
     case "codigo":
-      return renderBloqueCodigo(bloque.codigo);
+      return renderBloqueCodigo(bloque.codigo, bloque.lenguaje || "");
     case "ejemplo": {
       const figura = document.createElement("figure");
       figura.className = "ejemplo";
@@ -142,8 +156,7 @@ export function renderBloques(bloques) {
  * enlace para que el teclado tenga un solo punto de tabulación.
  * @param {object} item Ítem estructurado (ver scripts/extraer-datos.js).
  * @returns {HTMLElement}
- */
-export function renderTarjeta(item) {
+ */ export function renderTarjeta(item) {
   const articulo = document.createElement("article");
   articulo.className = "ficha";
 
@@ -155,17 +168,11 @@ export function renderTarjeta(item) {
     `Ver ficha ${String(item.numero).padStart(3, "0")}: ${item.titulo}`
   );
 
-  // Fila de metadatos: número, nivel y dificultad.
-  const meta = document.createElement("div");
-  meta.className = "ficha__meta";
-  const numero = document.createElement("span");
-  numero.className = "ficha__numero";
-  numero.textContent = String(item.numero).padStart(3, "0");
-  const nivel = document.createElement("span");
-  nivel.className = "badge";
-  nivel.textContent = `Nivel ${item.nivel} · ${item.nombreNivel}`;
-  meta.append(numero, nivel, renderEstrellas(item.dificultad));
-  enlace.append(meta);
+  // Eyebrow: tipo de ficha + número (mono minúscula, acento).
+  const eyebrow = document.createElement("p");
+  eyebrow.className = "ficha__eyebrow";
+  eyebrow.textContent = `${item.coleccion === "ejercicios" ? "ejercicio" : "problema"} ${String(item.numero).padStart(3, "0")}`;
+  enlace.append(eyebrow);
 
   const titulo = document.createElement("h2");
   titulo.className = "ficha__titulo";
@@ -179,6 +186,15 @@ export function renderTarjeta(item) {
     categoria.textContent = item.categoria;
     enlace.append(categoria);
   }
+
+  // Metadatos: badge de nivel (con color por nivel) + dificultad.
+  const meta = document.createElement("div");
+  meta.className = "ficha__meta";
+  const nivel = document.createElement("span");
+  nivel.className = `badge badge--nivel-${item.nivel}`;
+  nivel.textContent = `Nivel ${item.nivel} · ${item.nombreNivel}`;
+  meta.append(nivel, renderEstrellas(item.dificultad));
+  enlace.append(meta);
 
   // Temas como chips (se quitan los backticks de marcado de código del markdown).
   if (item.temas.length > 0) {
@@ -195,7 +211,7 @@ export function renderTarjeta(item) {
 
   const pie = document.createElement("p");
   pie.className = "ficha__pie";
-  pie.append(document.createTextNode("Ver ficha"), crearIcono("arrow_forward"));
+  pie.append(document.createTextNode("ver ficha"), crearIcono("arrow_forward"));
   enlace.append(pie);
 
   articulo.append(enlace);
@@ -283,19 +299,14 @@ export function renderDetalle(item, coleccion, anterior, siguiente) {
   cabecera.append(volver, miga);
   articulo.append(cabecera);
 
-  // Encabezado de la ficha.
+  // Encabezado de la ficha: eyebrow + titular serif + especificación.
   const encabezado = document.createElement("header");
   encabezado.className = "detalle__encabezado";
-  const meta = document.createElement("div");
-  meta.className = "ficha__meta";
-  const numero = document.createElement("span");
-  numero.className = "ficha__numero";
-  numero.textContent = String(item.numero).padStart(3, "0");
-  const nivel = document.createElement("span");
-  nivel.className = "badge";
-  nivel.textContent = `Nivel ${item.nivel} · ${item.nombreNivel}`;
-  meta.append(numero, nivel, renderEstrellas(item.dificultad));
-  encabezado.append(meta);
+
+  const eyebrow = document.createElement("p");
+  eyebrow.className = "ficha__eyebrow";
+  eyebrow.textContent = `${item.coleccion === "ejercicios" ? "ejercicio" : "problema"} ${String(item.numero).padStart(3, "0")}`;
+  encabezado.append(eyebrow);
 
   const titulo = document.createElement("h1");
   titulo.className = "detalle__titulo";
@@ -304,31 +315,58 @@ export function renderDetalle(item, coleccion, anterior, siguiente) {
   titulo.textContent = item.titulo;
   encabezado.append(titulo);
 
-  // Datos extra de los problemas de diseño.
-  const datos = [];
+  // Especificación de la ficha: pares clave/valor en mono.
+  const spec = document.createElement("dl");
+  spec.className = "detalle__spec";
+
+  const parNivel = document.createElement("div");
+  parNivel.className = "detalle__spec-par";
+  const dtNivel = document.createElement("dt");
+  dtNivel.textContent = "Nivel";
+  const ddNivel = document.createElement("dd");
+  const badgeNivel = document.createElement("span");
+  badgeNivel.className = `badge badge--nivel-${item.nivel}`;
+  badgeNivel.textContent = `${item.nivel} · ${item.nombreNivel}`;
+  ddNivel.append(badgeNivel);
+  parNivel.append(dtNivel, ddNivel);
+  spec.append(parNivel);
+
+  const parDificultad = document.createElement("div");
+  parDificultad.className = "detalle__spec-par";
+  const dtDificultad = document.createElement("dt");
+  dtDificultad.textContent = "Dificultad";
+  const ddDificultad = document.createElement("dd");
+  ddDificultad.append(renderEstrellas(item.dificultad));
+  parDificultad.append(dtDificultad, ddDificultad);
+  spec.append(parDificultad);
+
   if (item.categoria) {
-    datos.push(`Categoría: ${item.categoria}`);
+    const parCategoria = document.createElement("div");
+    parCategoria.className = "detalle__spec-par";
+    const dtCategoria = document.createElement("dt");
+    dtCategoria.textContent = "Categoría";
+    const ddCategoria = document.createElement("dd");
+    ddCategoria.textContent = item.categoria;
+    parCategoria.append(dtCategoria, ddCategoria);
+    spec.append(parCategoria);
   }
+
   if (item.enfoquePoo) {
-    datos.push(`Enfoque POO: ${item.enfoquePoo}`);
+    const parEnfoque = document.createElement("div");
+    parEnfoque.className = "detalle__spec-par";
+    const dtEnfoque = document.createElement("dt");
+    dtEnfoque.textContent = "Enfoque POO";
+    const ddEnfoque = document.createElement("dd");
+    ddEnfoque.textContent = item.enfoquePoo;
+    parEnfoque.append(dtEnfoque, ddEnfoque);
+    spec.append(parEnfoque);
   }
-  if (datos.length > 0) {
-    const detalleDatos = document.createElement("dl");
-    detalleDatos.className = "detalle__datos";
-    for (const dato of datos) {
-      const [clave, ...resto] = dato.split(": ");
-      const termino = document.createElement("dt");
-      termino.textContent = clave;
-      const valor = document.createElement("dd");
-      valor.textContent = resto.join(": ");
-      detalleDatos.append(termino, valor);
-    }
-    encabezado.append(detalleDatos);
-  }
+
+  encabezado.append(spec);
 
   if (item.temas.length > 0) {
     const temas = document.createElement("ul");
-    temas.className = "ficha__temas detalle__temas";
+    temas.className = "detalle__temas";
     for (const tema of item.temas) {
       const chip = document.createElement("li");
       chip.className = "chip";

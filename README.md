@@ -9,7 +9,7 @@ Web estática (**HTML + CSS + JS vanilla**, sin frameworks) que muestra los ejer
 
 Incluye **listado paginado** (12 fichas por página), pestañas por colección, filtro por nivel, búsqueda por texto y una **vista de detalle** por ficha con enunciado, instrucciones, firma, ejemplos, casos límite y pistas ocultables.
 
-El diseño es propio, con dirección **"Ficha de laboratorio"**: paleta OKLCH con acento azul acero, tipografía Archivo + IBM Plex Mono, iconos Material Symbols y BEM en el CSS. Los detalles viven en [`docs/style-guide.md`](docs/style-guide.md).
+El diseño adapta en **claro** el ejemplo lumen-01 de Hallmark: serif Instrument Serif + Geist + JetBrains Mono, acento latón, tarjetas con emisión radial, **estrellas de dificultad amarillas** y **badges de nivel con color distinto por nivel**. Los detalles viven en [`docs/style-guide.md`](docs/style-guide.md).
 
 ## Cómo ejecutar
 
@@ -50,7 +50,7 @@ El CI (GitHub Actions) ejecuta lint y tests en cada push/PR a `main`.
 | --------------------------------- | ---------------------------------------------- |
 | `index.html`                      | Página principal (semántica, accesible)        |
 | `favicon.svg`                     | Favicon de la marca (taza de café de Java)     |
-| `css/styles.css`                  | Estilos con tokens, BEM y mobile-first         |
+| `css/styles.css`                  | Estilos con tokens (tema Lumen claro)          |
 | `js/app.js`                       | Estado, filtros, paginación y routing por hash |
 | `js/render.js`                    | Renderizado seguro a DOM (sin `innerHTML`)     |
 | `js/paginacion.js`                | Lógica pura de paginación                      |
