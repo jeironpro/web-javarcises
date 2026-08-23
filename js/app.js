@@ -265,6 +265,8 @@ function leerRuta() {
 
 function renderizar() {
   const ruta = leerRuta();
+  // En el detalle se ocultan la navegación y el pie para centrar la ficha.
+  document.body.classList.toggle("modo-detalle", ruta.vista === "detalle");
   if (ruta.vista === "detalle") {
     renderVistaDetalle(ruta);
   } else {
