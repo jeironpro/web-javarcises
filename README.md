@@ -1,6 +1,6 @@
 # web-javarcises
 
-## 📌 Descripción
+## Descripción
 
 Web estática (**HTML + CSS + JS vanilla**, sin frameworks) que muestra los ejercicios de programación en Java del proyecto:
 
@@ -11,7 +11,7 @@ Incluye **listado paginado** (12 fichas por página), pestañas por colección, 
 
 El diseño es propio, con dirección **"Ficha de laboratorio"**: paleta OKLCH con acento azul acero, tipografía Archivo + IBM Plex Mono, iconos Material Symbols y BEM en el CSS. Los detalles viven en [`docs/style-guide.md`](docs/style-guide.md).
 
-## 🚀 Cómo ejecutar
+## Cómo ejecutar
 
 Requiere **Node.js 20+** (para servir localmente y regenerar datos; el navegador no necesita nada más).
 
@@ -24,7 +24,7 @@ Abrir **http://localhost:4173** (si el puerto está ocupado, se usa el siguiente
 
 > Los ES Modules no cargan con `file://`, por eso el proyecto se sirve por HTTP. También funciona en GitHub Pages u otro host estático.
 
-## 📦 Regenerar los datos
+## Regenerar los datos
 
 `data/ejercicios.js` se genera a partir de los markdown de `triviales/` y `problemas-diseno/`:
 
@@ -32,7 +32,7 @@ Abrir **http://localhost:4173** (si el puerto está ocupado, se usa el siguiente
 npm run generar   # parsea los .md y escribe data/ejercicios.js
 ```
 
-## ✅ Calidad de código
+## Calidad de código
 
 ```bash
 npm test                    # node --test (parser + paginación)
@@ -44,11 +44,12 @@ pre-commit run --all-files  # hooks de pre-commit
 
 El CI (GitHub Actions) ejecuta lint y tests en cada push/PR a `main`.
 
-## 🧱 Estructura
+## Estructura
 
 | Ruta                              | Descripción                                    |
 | --------------------------------- | ---------------------------------------------- |
 | `index.html`                      | Página principal (semántica, accesible)        |
+| `favicon.svg`                     | Favicon de la marca (taza de café de Java)     |
 | `css/styles.css`                  | Estilos con tokens, BEM y mobile-first         |
 | `js/app.js`                       | Estado, filtros, paginación y routing por hash |
 | `js/render.js`                    | Renderizado seguro a DOM (sin `innerHTML`)     |
@@ -59,7 +60,7 @@ El CI (GitHub Actions) ejecuta lint y tests en cada push/PR a `main`.
 | `docs/style-guide.md`             | Libro de estilo                                |
 | `triviales/`, `problemas-diseno/` | Contenido fuente (markdown)                    |
 
-## 📜 Licencia
+## Licencia
 
 Este proyecto está bajo la licencia **MIT**.
 Consulta el archivo [LICENSE](LICENSE) para más detalles.
