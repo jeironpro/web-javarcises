@@ -3,7 +3,7 @@
 
 import assert from "node:assert/strict";
 import test from "node:test";
-import { buildBlocks, countStars, parseFile } from "./extraer-datos.js";
+import { buildBlocks, countStars, parseFile, splitTopics } from "./extraer-datos.js";
 
 const EJERCICIO_001 = `# Ejercicio 001 - Convertidor de tiempo de carrera
 
@@ -85,6 +85,20 @@ test("countStars cuenta la dificultad", () => {
     assert.equal(countStars("⭐⭐☆☆☆"), 2);
     assert.equal(countStars("⭐☆☆☆☆"), 1);
     assert.equal(countStars(undefined), 0);
+});
+
+test("splitTopics respeta las comas dentro de paréntesis", () => {
+    assert.deepEqual(splitTopics("operadores lógicos combinados (&&, ||), rangos, condicionales"), [
+        "operadores lógicos combinados (&&, ||)",
+        "rangos",
+        "condicionales",
+    ]);
+    assert.deepEqual(splitTopics("clase Math (Math.PI, Math.pow), variables"), [
+        "clase Math (Math.PI, Math.pow)",
+        "variables",
+    ]);
+    assert.deepEqual(splitTopics("tema único"), ["tema único"]);
+    assert.deepEqual(splitTopics(undefined), []);
 });
 
 test("buildBlocks agrupa listas numeradas y con viñetas", () => {

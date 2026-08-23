@@ -3,7 +3,7 @@
 // Regenerar con: npm run generar
 
 export const JAVARCISES = {
-    "generatedAt": "2026-08-23T01:15:36.901Z",
+    "generatedAt": "2026-08-23T01:29:27.908Z",
     "collections": [
         {
             "key": "exercises",
@@ -719,8 +719,7 @@ export const JAVARCISES = {
                     "level": 1,
                     "levelName": "Básico I",
                     "topics": [
-                        "clase `Math` (`Math.PI`",
-                        "`Math.pow`)",
+                        "clase `Math` (`Math.PI`, `Math.pow`)",
                         "variables decimales",
                         "redondeo",
                         "formato de salida"
@@ -958,9 +957,7 @@ export const JAVARCISES = {
                     "levelName": "Básico II",
                     "topics": [
                         "condicionales (`if`/`else`)",
-                        "operadores lógicos (`&&`",
-                        "`||`",
-                        "`!`)",
+                        "operadores lógicos (`&&`, `||`, `!`)",
                         "operador módulo",
                         "precedencia"
                     ],
@@ -1335,8 +1332,7 @@ export const JAVARCISES = {
                     "level": 2,
                     "levelName": "Básico II",
                     "topics": [
-                        "operadores lógicos combinados (`&&`",
-                        "`||`)",
+                        "operadores lógicos combinados (`&&`, `||`)",
                         "rangos con límites inclusivos",
                         "condicionales",
                         "entrada por consola"
@@ -2203,8 +2199,7 @@ export const JAVARCISES = {
                     "level": 3,
                     "levelName": "Básico III",
                     "topics": [
-                        "bucle sobre caracteres de un `String` (`charAt`",
-                        "`length`)",
+                        "bucle sobre caracteres de un `String` (`charAt`, `length`)",
                         "comparación desde ambos extremos",
                         "normalización de mayúsculas"
                     ],
@@ -3963,8 +3958,7 @@ export const JAVARCISES = {
                     "level": 5,
                     "levelName": "Intermedio II",
                     "topics": [
-                        "métodos de `String` (`substring`",
-                        "`length`)",
+                        "métodos de `String` (`substring`, `length`)",
                         "separación de texto",
                         "validación de entrada",
                         "ceros a la izquierda"
@@ -4222,10 +4216,7 @@ export const JAVARCISES = {
                     "level": 5,
                     "levelName": "Intermedio II",
                     "topics": [
-                        "métodos de `String` (`trim`",
-                        "`length`",
-                        "`split`",
-                        "`charAt`...)",
+                        "métodos de `String` (`trim`, `length`, `split`, `charAt`...)",
                         "tokens vacíos",
                         "conteo de palabras",
                         "búsqueda de máximo de longitud con empates"
@@ -4477,9 +4468,7 @@ export const JAVARCISES = {
                     "level": 5,
                     "levelName": "Intermedio II",
                     "topics": [
-                        "métodos de `String` (`charAt`",
-                        "`length`",
-                        "concatenación)",
+                        "métodos de `String` (`charAt`, `length`, concatenación)",
                         "aritmética de caracteres",
                         "módulo para envolver el alfabeto",
                         "lectura mixta con `Scanner`"
@@ -4731,9 +4720,7 @@ export const JAVARCISES = {
                     "level": 5,
                     "levelName": "Intermedio II",
                     "topics": [
-                        "métodos de `String` (`indexOf`",
-                        "`length`",
-                        "`substring`)",
+                        "métodos de `String` (`indexOf`, `length`, `substring`)",
                         "búsqueda repetitiva con desplazamiento",
                         "posiciones en texto"
                     ],
@@ -4856,9 +4843,7 @@ export const JAVARCISES = {
                     "level": 6,
                     "levelName": "Intermedio III",
                     "topics": [
-                        "métodos (`static`",
-                        "parámetros",
-                        "valor de retorno)",
+                        "métodos (`static`, parámetros, valor de retorno)",
                         "descomposición de problemas",
                         "arreglos como parámetros"
                     ],
@@ -4985,8 +4970,7 @@ export const JAVARCISES = {
                     "level": 6,
                     "levelName": "Intermedio III",
                     "topics": [
-                        "sobrecarga de métodos (mismo nombre",
-                        "distintas firmas)",
+                        "sobrecarga de métodos (mismo nombre, distintas firmas)",
                         "resolución de sobrecargas",
                         "`switch`",
                         "aritmética de figuras"
@@ -6154,8 +6138,7 @@ export const JAVARCISES = {
                     "level": 8,
                     "levelName": "POO II",
                     "topics": [
-                        "herencia (`extends`",
-                        "`super`)",
+                        "herencia (`extends`, `super`)",
                         "clases abstractas y métodos abstractos",
                         "**sobrescritura** (`@Override`)",
                         "polimorfismo con arreglo de la clase base"
@@ -7080,10 +7063,7 @@ export const JAVARCISES = {
                     "level": 9,
                     "levelName": "Colecciones",
                     "topics": [
-                        "iteradores explícitos (`Iterator`",
-                        "`hasNext`",
-                        "`next`",
-                        "`remove`)",
+                        "iteradores explícitos (`Iterator`, `hasNext`, `next`, `remove`)",
                         "eliminación durante el recorrido",
                         "excepción `ConcurrentModificationException`"
                     ],
@@ -7872,10 +7852,7 @@ export const JAVARCISES = {
                     "levelName": "Avanzado I",
                     "topics": [
                         "**streams** de Java",
-                        "operaciones intermedias (`filter`",
-                        "`distinct`) y terminales (`count`",
-                        "`sum`",
-                        "`max`)",
+                        "operaciones intermedias (`filter`, `distinct`) y terminales (`count`, `sum`, `max`)",
                         "`Optional`",
                         "expresiones lambda"
                     ],

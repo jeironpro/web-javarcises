@@ -370,15 +370,22 @@ export function renderDetail(item, collection, previous, next) {
     header.append(spec);
 
     if (item.topics.length > 0) {
+        const topicsGroup = document.createElement("div");
+        topicsGroup.className = "detail__topics";
+        const topicsLabel = document.createElement("span");
+        topicsLabel.className = "detail__topics-label";
+        topicsLabel.textContent = "Temas";
+        topicsGroup.append(topicsLabel);
         const topics = document.createElement("ul");
-        topics.className = "detail__topics";
+        topics.className = "detail__topics-list";
         for (const topic of item.topics) {
             const chip = document.createElement("li");
             chip.className = "chip";
             chip.textContent = topic.replaceAll("`", "");
             topics.append(chip);
         }
-        header.append(topics);
+        topicsGroup.append(topics);
+        header.append(topicsGroup);
     }
     article.append(header);
 
