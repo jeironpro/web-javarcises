@@ -3,152 +3,152 @@
 // todo se construye con createElement/textContent, por lo que el contenido
 // de los ejercicios (markdown ya parseado) no puede inyectar marcado.
 
-import { numerosDePagina } from "./paginacion.js";
+import { pageNumbers } from "./paginacion.js";
 
 /**
  * Crea un icono de Material Symbols (decorativo: aria-hidden).
- * @param {string} nombre Nombre del glifo (p. ej. "star", "arrow_forward").
+ * @param {string} name Nombre del glifo (p. ej. "star", "arrow_forward").
  * @returns {HTMLSpanElement}
  */
-export function crearIcono(nombre) {
-  const icono = document.createElement("span");
-  icono.className = "material-symbols-outlined icono";
-  icono.setAttribute("aria-hidden", "true");
-  icono.textContent = nombre;
-  return icono;
+export function createIcon(name) {
+    const icon = document.createElement("span");
+    icon.className = "material-symbols-outlined icon";
+    icon.setAttribute("aria-hidden", "true");
+    icon.textContent = name;
+    return icon;
 }
 
 /**
  * Convierte texto con marcas inline (`**negrita**` y `` `código` ``) en un
  * fragmento de nodos de texto/strong/code. La negrita se usa como énfasis
  * de lectura; el código se renderiza con la fuente monoespaciada.
- * @param {string} texto
+ * @param {string} text
  * @returns {DocumentFragment}
  */
-export function renderTextoEnriquecido(texto) {
-  const fragmento = document.createDocumentFragment();
-  // Divide el texto en tokens: negrita, itálica, código o texto plano.
-  const tokens = texto.split(/(\*\*[^*]+\*\*|`[^`]+`|\*[^*]+\*)/g);
-  for (const token of tokens) {
-    if (token === "") {
-      continue;
+export function renderRichText(text) {
+    const fragment = document.createDocumentFragment();
+    // Divide el texto en tokens: negrita, itálica, código o texto plano.
+    const tokens = text.split(/(\*\*[^*]+\*\*|`[^`]+`|\*[^*]+\*)/g);
+    for (const token of tokens) {
+        if (token === "") {
+            continue;
+        }
+        if (token.startsWith("**") && token.endsWith("**") && token.length > 4) {
+            const strong = document.createElement("strong");
+            strong.textContent = token.slice(2, -2);
+            fragment.append(strong);
+        } else if (token.startsWith("`") && token.endsWith("`") && token.length > 2) {
+            const code = document.createElement("code");
+            code.textContent = token.slice(1, -1);
+            fragment.append(code);
+        } else if (token.startsWith("*") && token.endsWith("*") && token.length > 2) {
+            const emphasis = document.createElement("em");
+            emphasis.textContent = token.slice(1, -1);
+            fragment.append(emphasis);
+        } else {
+            fragment.append(document.createTextNode(token));
+        }
     }
-    if (token.startsWith("**") && token.endsWith("**") && token.length > 4) {
-      const fuerte = document.createElement("strong");
-      fuerte.textContent = token.slice(2, -2);
-      fragmento.append(fuerte);
-    } else if (token.startsWith("`") && token.endsWith("`") && token.length > 2) {
-      const codigo = document.createElement("code");
-      codigo.textContent = token.slice(1, -1);
-      fragmento.append(codigo);
-    } else if (token.startsWith("*") && token.endsWith("*") && token.length > 2) {
-      const enfasis = document.createElement("em");
-      enfasis.textContent = token.slice(1, -1);
-      fragmento.append(enfasis);
-    } else {
-      fragmento.append(document.createTextNode(token));
-    }
-  }
-  return fragmento;
+    return fragment;
 }
 
 /** Renderiza la dificultad (1–5) como cinco iconos de estrella. */
-export function renderEstrellas(dificultad) {
-  const contenedor = document.createElement("span");
-  contenedor.className = "dificultad";
-  contenedor.setAttribute("role", "img");
-  contenedor.setAttribute("aria-label", `Dificultad: ${dificultad} de 5`);
-  for (let i = 1; i <= 5; i += 1) {
-    const icono = crearIcono("star");
-    icono.classList.add("dificultad__estrella");
-    if (i > dificultad) {
-      icono.classList.add("dificultad__estrella--vacia");
+export function renderStars(difficulty) {
+    const container = document.createElement("span");
+    container.className = "difficulty";
+    container.setAttribute("role", "img");
+    container.setAttribute("aria-label", `Dificultad: ${difficulty} de 5`);
+    for (let i = 1; i <= 5; i += 1) {
+        const icon = createIcon("star");
+        icon.classList.add("difficulty__star");
+        if (i > difficulty) {
+            icon.classList.add("difficulty__star--empty");
+        }
+        container.append(icon);
     }
-    contenedor.append(icono);
-  }
-  return contenedor;
+    return container;
 }
 
 /**
  * Renderiza un bloque de código como panel claro con hairline y, si se
  * indica una etiqueta (p. ej. el lenguaje), una cabecera sin chrome falso.
  */
-function renderBloqueCodigo(codigo, etiqueta = "") {
-  const contenedor = document.createElement("div");
-  contenedor.className = "bloque__codigo";
-  if (etiqueta) {
-    const cabecera = document.createElement("div");
-    cabecera.className = "bloque__codigo-cabecera";
-    const texto = document.createElement("span");
-    texto.textContent = etiqueta;
-    cabecera.append(texto);
-    contenedor.append(cabecera);
-  }
-  const pre = document.createElement("pre");
-  pre.className = "bloque__codigo-cuerpo";
-  const code = document.createElement("code");
-  code.textContent = codigo;
-  pre.append(code);
-  contenedor.append(pre);
-  return contenedor;
+function renderCodeBlock(code, label = "") {
+    const container = document.createElement("div");
+    container.className = "block__code";
+    if (label) {
+        const header = document.createElement("div");
+        header.className = "block__code-header";
+        const text = document.createElement("span");
+        text.textContent = label;
+        header.append(text);
+        container.append(header);
+    }
+    const pre = document.createElement("pre");
+    pre.className = "block__code-body";
+    const codeElement = document.createElement("code");
+    codeElement.textContent = code;
+    pre.append(codeElement);
+    container.append(pre);
+    return container;
 }
 
-/** Renderiza un bloque tipado (parrafo | lista | codigo | ejemplo | pista). */
-export function renderBloque(bloque) {
-  switch (bloque.tipo) {
-    case "parrafo": {
-      const parrafo = document.createElement("p");
-      parrafo.className = "bloque__parrafo";
-      parrafo.append(renderTextoEnriquecido(bloque.texto));
-      return parrafo;
+/** Renderiza un bloque tipado (paragraph | list | code | example | hint). */
+export function renderBlock(block) {
+    switch (block.type) {
+        case "paragraph": {
+            const paragraph = document.createElement("p");
+            paragraph.className = "block__paragraph";
+            paragraph.append(renderRichText(block.text));
+            return paragraph;
+        }
+        case "list": {
+            const list = document.createElement(block.ordered ? "ol" : "ul");
+            list.className = block.ordered ? "block__list block__list--ordered" : "block__list";
+            for (const item of block.items) {
+                const element = document.createElement("li");
+                element.append(renderRichText(item));
+                list.append(element);
+            }
+            return list;
+        }
+        case "code":
+            return renderCodeBlock(block.code, block.language || "");
+        case "example": {
+            const figure = document.createElement("figure");
+            figure.className = "example";
+            const caption = document.createElement("figcaption");
+            caption.className = "example__title";
+            caption.textContent = block.title;
+            figure.append(caption, renderCodeBlock(block.code));
+            return figure;
+        }
+        case "hint": {
+            const details = document.createElement("details");
+            details.className = "hint";
+            const summary = document.createElement("summary");
+            summary.className = "hint__summary";
+            summary.append(createIcon("lightbulb"), renderRichText(block.summary));
+            details.append(summary);
+            const content = document.createElement("div");
+            content.className = "hint__content";
+            content.append(renderBlocks(block.content));
+            details.append(content);
+            return details;
+        }
+        default:
+            // Bloque desconocido: no debería ocurrir con los datos generados.
+            return document.createElement("p");
     }
-    case "lista": {
-      const lista = document.createElement(bloque.ordenada ? "ol" : "ul");
-      lista.className = bloque.ordenada ? "bloque__lista bloque__lista--numerada" : "bloque__lista";
-      for (const item of bloque.items) {
-        const elemento = document.createElement("li");
-        elemento.append(renderTextoEnriquecido(item));
-        lista.append(elemento);
-      }
-      return lista;
-    }
-    case "codigo":
-      return renderBloqueCodigo(bloque.codigo, bloque.lenguaje || "");
-    case "ejemplo": {
-      const figura = document.createElement("figure");
-      figura.className = "ejemplo";
-      const leyenda = document.createElement("figcaption");
-      leyenda.className = "ejemplo__titulo";
-      leyenda.textContent = bloque.titulo;
-      figura.append(leyenda, renderBloqueCodigo(bloque.codigo));
-      return figura;
-    }
-    case "pista": {
-      const detalles = document.createElement("details");
-      detalles.className = "pista";
-      const resumen = document.createElement("summary");
-      resumen.className = "pista__resumen";
-      resumen.append(crearIcono("lightbulb"), renderTextoEnriquecido(bloque.resumen));
-      detalles.append(resumen);
-      const contenido = document.createElement("div");
-      contenido.className = "pista__contenido";
-      contenido.append(renderBloques(bloque.contenido));
-      detalles.append(contenido);
-      return detalles;
-    }
-    default:
-      // Bloque desconocido: no debería ocurrir con los datos generados.
-      return document.createElement("p");
-  }
 }
 
 /** Renderiza una lista de bloques en orden. */
-export function renderBloques(bloques) {
-  const fragmento = document.createDocumentFragment();
-  for (const bloque of bloques) {
-    fragmento.append(renderBloque(bloque));
-  }
-  return fragmento;
+export function renderBlocks(blocks) {
+    const fragment = document.createDocumentFragment();
+    for (const block of blocks) {
+        fragment.append(renderBlock(block));
+    }
+    return fragment;
 }
 
 /**
@@ -156,309 +156,318 @@ export function renderBloques(bloques) {
  * enlace para que el teclado tenga un solo punto de tabulación.
  * @param {object} item Ítem estructurado (ver scripts/extraer-datos.js).
  * @returns {HTMLElement}
- */ export function renderTarjeta(item) {
-  const articulo = document.createElement("article");
-  articulo.className = "ficha";
+ */
+export function renderCard(item) {
+    const article = document.createElement("article");
+    article.className = "card";
 
-  const enlace = document.createElement("a");
-  enlace.className = "ficha__enlace";
-  enlace.href = `#/ficha/${item.coleccion}/${item.numero}`;
-  enlace.setAttribute(
-    "aria-label",
-    `Ver ficha ${String(item.numero).padStart(3, "0")}: ${item.titulo}`
-  );
+    const link = document.createElement("a");
+    link.className = "card__link";
+    link.href = `#/card/${item.collection}/${item.number}`;
+    link.setAttribute(
+        "aria-label",
+        `Ver ficha ${String(item.number).padStart(3, "0")}: ${item.title}`
+    );
 
-  // Eyebrow: tipo de ficha + número (mono minúscula, acento).
-  const eyebrow = document.createElement("p");
-  eyebrow.className = "ficha__eyebrow";
-  eyebrow.textContent = `${item.coleccion === "ejercicios" ? "ejercicio" : "problema"} ${String(item.numero).padStart(3, "0")}`;
-  enlace.append(eyebrow);
+    // Eyebrow: tipo de ficha + número (mono minúscula, acento).
+    const eyebrow = document.createElement("p");
+    eyebrow.className = "card__eyebrow";
+    eyebrow.textContent = `${item.collection === "exercises" ? "ejercicio" : "problema"} ${String(item.number).padStart(3, "0")}`;
+    link.append(eyebrow);
 
-  const titulo = document.createElement("h2");
-  titulo.className = "ficha__titulo";
-  titulo.textContent = item.titulo;
-  enlace.append(titulo);
+    const title = document.createElement("h2");
+    title.className = "card__title";
+    title.textContent = item.title;
+    link.append(title);
 
-  // Metadatos: badge de nivel (con color por nivel) + dificultad.
-  const meta = document.createElement("div");
-  meta.className = "ficha__meta";
-  const nivel = document.createElement("span");
-  nivel.className = `badge badge--nivel-${item.nivel}`;
-  nivel.textContent = `Nivel ${item.nivel} · ${item.nombreNivel}`;
-  meta.append(nivel, renderEstrellas(item.dificultad));
-  enlace.append(meta);
+    // Metadatos: badge de nivel (con color por nivel) + dificultad.
+    const meta = document.createElement("div");
+    meta.className = "card__meta";
+    const level = document.createElement("span");
+    level.className = `badge badge--level-${item.level}`;
+    level.textContent = `Nivel ${item.level} · ${item.levelName}`;
+    meta.append(level, renderStars(item.difficulty));
+    link.append(meta);
 
-  // Fila de chips: en los ejercicios son los temas; en los problemas de diseño,
-  // la categoría. Así ambas fichas comparten exactamente la misma estructura.
-  const temas = document.createElement("ul");
-  temas.className = "ficha__temas";
-  const chips = item.coleccion === "problemas" ? [item.categoria] : item.temas;
-  for (const texto of chips) {
-    if (!texto) {
-      continue;
+    // Fila de chips: en los ejercicios son los temas; en los problemas de diseño,
+    // la categoría. Así ambas fichas comparten exactamente la misma estructura.
+    const topics = document.createElement("ul");
+    topics.className = "card__topics";
+    const chips = item.collection === "problems" ? [item.category] : item.topics;
+    for (const text of chips) {
+        if (!text) {
+            continue;
+        }
+        const chip = document.createElement("li");
+        chip.className = "chip";
+        chip.textContent = text.replaceAll("`", "");
+        topics.append(chip);
     }
-    const chip = document.createElement("li");
-    chip.className = "chip";
-    chip.textContent = texto.replaceAll("`", "");
-    temas.append(chip);
-  }
-  enlace.append(temas);
+    link.append(topics);
 
-  const pie = document.createElement("p");
-  pie.className = "ficha__pie";
-  pie.append(document.createTextNode("ver ficha"), crearIcono("arrow_forward"));
-  enlace.append(pie);
+    const footer = document.createElement("p");
+    footer.className = "card__footer";
+    footer.append(document.createTextNode("ver ficha"), createIcon("arrow_forward"));
+    link.append(footer);
 
-  articulo.append(enlace);
-  return articulo;
+    article.append(link);
+    return article;
 }
 
 /**
  * Renderiza el paginador: anterior, páginas (con elipsis) y siguiente.
- * @param {{pagina: number, totalPaginas: number, alIrAPagina: Function}} opciones
+ * @param {{page: number, totalPages: number, onGoToPage: Function}} options
  * @returns {HTMLElement}
  */
-export function renderPaginador({ pagina, totalPaginas, alIrAPagina }) {
-  const nav = document.createElement("nav");
-  nav.className = "paginacion";
-  nav.setAttribute("aria-label", "Paginación de fichas");
+export function renderPagination({ page, totalPages, onGoToPage }) {
+    const nav = document.createElement("nav");
+    nav.className = "pagination";
+    nav.setAttribute("aria-label", "Paginación de fichas");
 
-  nav.append(
-    crearBotonPaginacion("Anterior", "chevron_left", pagina <= 1, () => alIrAPagina(pagina - 1))
-  );
-
-  for (const entrada of numerosDePagina(pagina, totalPaginas)) {
-    if (entrada.tipo === "elipsis") {
-      const elipsis = document.createElement("span");
-      elipsis.className = "paginacion__elipsis";
-      elipsis.textContent = "…";
-      elipsis.setAttribute("aria-hidden", "true");
-      nav.append(elipsis);
-      continue;
-    }
-    const boton = crearBotonPaginacion(String(entrada.numero), null, false, () =>
-      alIrAPagina(entrada.numero)
+    nav.append(
+        createPaginationButton("Anterior", "chevron_left", page <= 1, () => onGoToPage(page - 1))
     );
-    if (entrada.numero === pagina) {
-      boton.classList.add("paginacion__boton--activo");
-      boton.setAttribute("aria-current", "page");
-    }
-    nav.append(boton);
-  }
 
-  nav.append(
-    crearBotonPaginacion("Siguiente", "chevron_right", pagina >= totalPaginas, () =>
-      alIrAPagina(pagina + 1)
-    )
-  );
-  return nav;
+    for (const entry of pageNumbers(page, totalPages)) {
+        if (entry.type === "ellipsis") {
+            const ellipsis = document.createElement("span");
+            ellipsis.className = "pagination__ellipsis";
+            ellipsis.textContent = "…";
+            ellipsis.setAttribute("aria-hidden", "true");
+            nav.append(ellipsis);
+            continue;
+        }
+        const button = createPaginationButton(String(entry.number), null, false, () =>
+            onGoToPage(entry.number)
+        );
+        if (entry.number === page) {
+            button.classList.add("pagination__button--active");
+            button.setAttribute("aria-current", "page");
+        }
+        nav.append(button);
+    }
+
+    nav.append(
+        createPaginationButton("Siguiente", "chevron_right", page >= totalPages, () =>
+            onGoToPage(page + 1)
+        )
+    );
+    return nav;
 }
 
 /** Botón del paginador: nativo, con icono opcional. */
-function crearBotonPaginacion(etiqueta, icono, deshabilitado, alClic) {
-  const boton = document.createElement("button");
-  boton.type = "button";
-  boton.className = "paginacion__boton";
-  if (icono) {
-    boton.append(crearIcono(icono));
-  }
-  boton.append(document.createTextNode(etiqueta));
-  boton.disabled = deshabilitado;
-  boton.addEventListener("click", alClic);
-  return boton;
+function createPaginationButton(label, icon, disabled, onClick) {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "pagination__button";
+    if (icon) {
+        button.append(createIcon(icon));
+    }
+    button.append(document.createTextNode(label));
+    button.disabled = disabled;
+    button.addEventListener("click", onClick);
+    return button;
 }
 
 /**
  * Renderiza la vista de detalle de un ejercicio con todas sus secciones.
  * @param {object} item Ítem actual.
- * @param {object} coleccion Colección a la que pertenece (para navegar).
- * @param {object|null} anterior Ítem previo de la colección.
- * @param {object|null} siguiente Ítem siguiente de la colección.
+ * @param {object} collection Colección a la que pertenece (para navegar).
+ * @param {object|null} previous Ítem previo de la colección.
+ * @param {object|null} next Ítem siguiente de la colección.
  * @returns {HTMLElement}
  */
-export function renderDetalle(item, coleccion, anterior, siguiente) {
-  const articulo = document.createElement("article");
-  articulo.className = "detalle";
+export function renderDetail(item, collection, previous, next) {
+    const article = document.createElement("article");
+    article.className = "detail";
 
-  // Cabecera de navegación: volver + miga de pan.
-  const cabecera = document.createElement("nav");
-  cabecera.className = "detalle__navegacion-superior";
-  cabecera.setAttribute("aria-label", "Navegación superior");
-  const volver = document.createElement("a");
-  volver.className = "detalle__volver";
-  volver.href = "#/";
-  volver.append(crearIcono("arrow_back"), document.createTextNode("Volver al listado"));
-  const miga = document.createElement("span");
-  miga.className = "detalle__miga";
-  miga.textContent = `${coleccion.nombre} / ${String(item.numero).padStart(3, "0")}`;
-  cabecera.append(volver, miga);
-  articulo.append(cabecera);
+    // Cabecera de navegación: volver + miga de pan.
+    const topNav = document.createElement("nav");
+    topNav.className = "detail__top-nav";
+    topNav.setAttribute("aria-label", "Navegación superior");
+    const backLink = document.createElement("a");
+    backLink.className = "detail__back";
+    backLink.href = "#/";
+    backLink.append(createIcon("arrow_back"), document.createTextNode("Volver al listado"));
+    const breadcrumb = document.createElement("span");
+    breadcrumb.className = "detail__breadcrumb";
+    breadcrumb.textContent = `${collection.name} / ${String(item.number).padStart(3, "0")}`;
+    topNav.append(backLink, breadcrumb);
+    article.append(topNav);
 
-  // Encabezado de la ficha: eyebrow + titular serif + especificación.
-  const encabezado = document.createElement("header");
-  encabezado.className = "detalle__encabezado";
+    // Encabezado de la ficha: eyebrow + titular serif + especificación.
+    const header = document.createElement("header");
+    header.className = "detail__header";
 
-  const eyebrow = document.createElement("p");
-  eyebrow.className = "ficha__eyebrow";
-  eyebrow.textContent = `${item.coleccion === "ejercicios" ? "ejercicio" : "problema"} ${String(item.numero).padStart(3, "0")}`;
-  encabezado.append(eyebrow);
+    const eyebrow = document.createElement("p");
+    eyebrow.className = "card__eyebrow";
+    eyebrow.textContent = `${item.collection === "exercises" ? "ejercicio" : "problema"} ${String(item.number).padStart(3, "0")}`;
+    header.append(eyebrow);
 
-  const titulo = document.createElement("h1");
-  titulo.className = "detalle__titulo";
-  titulo.id = "titulo-ficha";
-  titulo.tabIndex = -1;
-  titulo.textContent = item.titulo;
-  encabezado.append(titulo);
+    const title = document.createElement("h1");
+    title.className = "detail__title";
+    title.id = "card-title";
+    title.tabIndex = -1;
+    title.textContent = item.title;
+    header.append(title);
 
-  // Especificación de la ficha: pares clave/valor en mono.
-  const spec = document.createElement("dl");
-  spec.className = "detalle__spec";
+    // Especificación de la ficha: pares clave/valor en mono.
+    const spec = document.createElement("dl");
+    spec.className = "spec";
 
-  const parNivel = document.createElement("div");
-  parNivel.className = "detalle__spec-par";
-  const dtNivel = document.createElement("dt");
-  dtNivel.textContent = "Nivel";
-  const ddNivel = document.createElement("dd");
-  const badgeNivel = document.createElement("span");
-  badgeNivel.className = `badge badge--nivel-${item.nivel}`;
-  badgeNivel.textContent = `${item.nivel} · ${item.nombreNivel}`;
-  ddNivel.append(badgeNivel);
-  parNivel.append(dtNivel, ddNivel);
-  spec.append(parNivel);
+    const levelRow = document.createElement("div");
+    levelRow.className = "spec__row";
+    const dtLevel = document.createElement("dt");
+    dtLevel.textContent = "Nivel";
+    const ddLevel = document.createElement("dd");
+    const levelBadge = document.createElement("span");
+    levelBadge.className = `badge badge--level-${item.level}`;
+    levelBadge.textContent = `${item.level} · ${item.levelName}`;
+    ddLevel.append(levelBadge);
+    levelRow.append(dtLevel, ddLevel);
+    spec.append(levelRow);
 
-  const parDificultad = document.createElement("div");
-  parDificultad.className = "detalle__spec-par";
-  const dtDificultad = document.createElement("dt");
-  dtDificultad.textContent = "Dificultad";
-  const ddDificultad = document.createElement("dd");
-  ddDificultad.append(renderEstrellas(item.dificultad));
-  parDificultad.append(dtDificultad, ddDificultad);
-  spec.append(parDificultad);
+    const difficultyRow = document.createElement("div");
+    difficultyRow.className = "spec__row";
+    const dtDifficulty = document.createElement("dt");
+    dtDifficulty.textContent = "Dificultad";
+    const ddDifficulty = document.createElement("dd");
+    ddDifficulty.append(renderStars(item.difficulty));
+    difficultyRow.append(dtDifficulty, ddDifficulty);
+    spec.append(difficultyRow);
 
-  if (item.categoria) {
-    const parCategoria = document.createElement("div");
-    parCategoria.className = "detalle__spec-par";
-    const dtCategoria = document.createElement("dt");
-    dtCategoria.textContent = "Categoría";
-    const ddCategoria = document.createElement("dd");
-    ddCategoria.textContent = item.categoria;
-    parCategoria.append(dtCategoria, ddCategoria);
-    spec.append(parCategoria);
-  }
-
-  if (item.enfoquePoo) {
-    const parEnfoque = document.createElement("div");
-    parEnfoque.className = "detalle__spec-par";
-    const dtEnfoque = document.createElement("dt");
-    dtEnfoque.textContent = "Enfoque POO";
-    const ddEnfoque = document.createElement("dd");
-    ddEnfoque.textContent = item.enfoquePoo;
-    parEnfoque.append(dtEnfoque, ddEnfoque);
-    spec.append(parEnfoque);
-  }
-
-  encabezado.append(spec);
-
-  if (item.temas.length > 0) {
-    const temas = document.createElement("ul");
-    temas.className = "detalle__temas";
-    for (const tema of item.temas) {
-      const chip = document.createElement("li");
-      chip.className = "chip";
-      chip.textContent = tema.replaceAll("`", "");
-      temas.append(chip);
+    if (item.category) {
+        const categoryRow = document.createElement("div");
+        categoryRow.className = "spec__row";
+        const dtCategory = document.createElement("dt");
+        dtCategory.textContent = "Categoría";
+        const ddCategory = document.createElement("dd");
+        ddCategory.textContent = item.category;
+        categoryRow.append(dtCategory, ddCategory);
+        spec.append(categoryRow);
     }
-    encabezado.append(temas);
-  }
-  articulo.append(encabezado);
 
-  // Cuerpo: secciones.
-  const cuerpo = document.createElement("div");
-  cuerpo.className = "detalle__cuerpo";
-  for (const seccion of item.secciones) {
-    const section = document.createElement("section");
-    section.className = "detalle__seccion";
-    const tituloSeccion = document.createElement("h2");
-    tituloSeccion.className = "detalle__seccion-titulo";
-    // Se descartan los paréntesis de metadato del markdown (p. ej. "(opcional, ocultables)").
-    tituloSeccion.textContent = seccion.titulo.replace(/\s*\([^)]*\)\s*$/, "");
-    const contenido = document.createElement("div");
-    contenido.className = "detalle__seccion-contenido";
-    contenido.append(renderBloques(seccion.bloques));
-    section.append(tituloSeccion, contenido);
-    cuerpo.append(section);
-  }
-  articulo.append(cuerpo);
+    if (item.oopFocus) {
+        const focusRow = document.createElement("div");
+        focusRow.className = "spec__row";
+        const dtFocus = document.createElement("dt");
+        dtFocus.textContent = "Enfoque POO";
+        const ddFocus = document.createElement("dd");
+        ddFocus.textContent = item.oopFocus;
+        focusRow.append(dtFocus, ddFocus);
+        spec.append(focusRow);
+    }
 
-  // Navegación entre fichas (anterior/siguiente).
-  const navegacion = document.createElement("nav");
-  navegacion.className = "detalle__navegacion-fichas";
-  navegacion.setAttribute("aria-label", "Fichas anterior y siguiente");
-  navegacion.append(
-    crearEnlaceFicha(anterior, "Anterior", "chevron_left", true),
-    crearEnlaceFicha(siguiente, "Siguiente", "chevron_right", false)
-  );
-  articulo.append(navegacion);
+    header.append(spec);
 
-  return articulo;
+    if (item.topics.length > 0) {
+        const topics = document.createElement("ul");
+        topics.className = "detail__topics";
+        for (const topic of item.topics) {
+            const chip = document.createElement("li");
+            chip.className = "chip";
+            chip.textContent = topic.replaceAll("`", "");
+            topics.append(chip);
+        }
+        header.append(topics);
+    }
+    article.append(header);
+
+    // Cuerpo: secciones.
+    const body = document.createElement("div");
+    body.className = "detail__body";
+    for (const section of item.sections) {
+        const sectionElement = document.createElement("section");
+        sectionElement.className = "detail__section";
+        const sectionTitle = document.createElement("h2");
+        sectionTitle.className = "detail__section-title";
+        // Se descartan los paréntesis de metadato del markdown (p. ej. "(opcional, ocultables)").
+        sectionTitle.textContent = section.title.replace(/\s*\([^)]*\)\s*$/, "");
+        const content = document.createElement("div");
+        content.className = "detail__section-content";
+        content.append(renderBlocks(section.blocks));
+        sectionElement.append(sectionTitle, content);
+        body.append(sectionElement);
+    }
+    article.append(body);
+
+    // Navegación entre fichas (anterior/siguiente).
+    const cardNav = document.createElement("nav");
+    cardNav.className = "detail__card-nav";
+    cardNav.setAttribute("aria-label", "Fichas anterior y siguiente");
+    cardNav.append(
+        createCardNavLink(previous, "Anterior", "chevron_left", true),
+        createCardNavLink(next, "Siguiente", "chevron_right", false)
+    );
+    article.append(cardNav);
+
+    return article;
 }
 
 /** Enlace "Anterior/Siguiente" de una ficha (o placeholder si no existe). */
-function crearEnlaceFicha(item, etiqueta, icono, esAnterior) {
-  const contenedor = document.createElement("div");
-  contenedor.className = "detalle__navegacion-ficha";
-  if (!item) {
-    const vacio = document.createElement("span");
-    vacio.className = "detalle__navegacion-ficha--vacio";
-    vacio.append(crearIcono(icono), document.createTextNode(etiqueta));
-    contenedor.append(vacio);
-    return contenedor;
-  }
-  const enlace = document.createElement("a");
-  enlace.className = "detalle__navegacion-ficha--enlace";
-  enlace.href = `#/ficha/${item.coleccion}/${item.numero}`;
-  const fila = document.createElement("span");
-  fila.className = "detalle__navegacion-ficha--fila";
-  if (esAnterior) {
-    fila.append(crearIcono(icono), document.createTextNode(etiqueta));
-  } else {
-    fila.append(document.createTextNode(etiqueta), crearIcono(icono));
-  }
-  const titulo = document.createElement("span");
-  titulo.className = "detalle__navegacion-ficha--titulo";
-  titulo.textContent = `${String(item.numero).padStart(3, "0")} · ${item.titulo}`;
-  enlace.append(fila, titulo);
-  contenedor.append(enlace);
-  return contenedor;
+function createCardNavLink(item, label, icon, isPrevious) {
+    const container = document.createElement("div");
+    container.className = "detail__card-nav-item";
+    if (!item) {
+        const empty = document.createElement("span");
+        empty.className = "detail__card-nav-empty";
+        empty.append(createIcon(icon), document.createTextNode(label));
+        container.append(empty);
+        return container;
+    }
+    const link = document.createElement("a");
+    link.className = "detail__card-nav-link";
+    link.href = `#/card/${item.collection}/${item.number}`;
+    const row = document.createElement("span");
+    row.className = "detail__card-nav-row";
+    if (isPrevious) {
+        row.append(createIcon(icon), document.createTextNode(label));
+    } else {
+        row.append(document.createTextNode(label), createIcon(icon));
+    }
+    const title = document.createElement("span");
+    title.className = "detail__card-nav-title";
+    title.textContent = `${String(item.number).padStart(3, "0")} · ${item.title}`;
+    link.append(row, title);
+    container.append(link);
+    return container;
 }
 
 /**
  * Estado vacío: sin resultados para los filtros actuales.
- * @param {string} mensaje Texto orientativo.
- * @param {Function|null} alLimpiar Acción del botón "Limpiar filtros".
+ * @param {{icon?: string, title?: string, message?: string, action?: {label: string, href?: string, onClick?: Function}}} options
  * @returns {HTMLElement}
  */
-export function renderVacio(mensaje, alLimpiar) {
-  const contenedor = document.createElement("div");
-  contenedor.className = "vacio";
-  const icono = crearIcono("search_off");
-  icono.classList.add("vacio__icono");
-  contenedor.append(icono);
-  const titulo = document.createElement("h2");
-  titulo.className = "vacio__titulo";
-  titulo.textContent = "Sin resultados";
-  contenedor.append(titulo);
-  const texto = document.createElement("p");
-  texto.className = "vacio__texto";
-  texto.textContent = mensaje;
-  contenedor.append(texto);
-  if (alLimpiar) {
-    const boton = document.createElement("button");
-    boton.type = "button";
-    boton.className = "boton boton--secundario";
-    boton.textContent = "Limpiar filtros";
-    boton.addEventListener("click", alLimpiar);
-    contenedor.append(boton);
-  }
-  return contenedor;
+export function renderEmpty({
+    icon = "search_off",
+    title = "Sin resultados",
+    message = "",
+    action = null,
+} = {}) {
+    const container = document.createElement("div");
+    container.className = "empty";
+    const iconElement = createIcon(icon);
+    iconElement.classList.add("empty__icon");
+    container.append(iconElement);
+    const titleElement = document.createElement("h2");
+    titleElement.className = "empty__title";
+    titleElement.textContent = title;
+    container.append(titleElement);
+    const text = document.createElement("p");
+    text.className = "empty__text";
+    text.textContent = message;
+    container.append(text);
+    if (action) {
+        const button = document.createElement(action.href ? "a" : "button");
+        button.className = "btn btn--ghost";
+        button.textContent = action.label;
+        if (action.href) {
+            button.href = action.href;
+        } else {
+            button.type = "button";
+            button.addEventListener("click", action.onClick);
+        }
+        container.append(button);
+    }
+    return container;
 }

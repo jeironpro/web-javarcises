@@ -163,20 +163,20 @@ Panel claro `--color-paper-2` con hairline, radio 10 px y emisión radial; **cab
 ```css
 :root,
 [data-theme="lumen"] {
-  /* paleta (ver tabla §3), badges por nivel, estrellas amarillas */
-  --font-display: "Instrument Serif", ui-serif, Georgia, serif;
-  --font-body: "Geist", ui-sans-serif, system-ui, sans-serif;
-  --font-label: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
-  --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
-  --text-display: clamp(2.5rem, 5vw + 1rem, 4.5rem);
-  --space-2xs: 0.25rem;
-  --space-md: 1rem;
-  --space-xl: 2.5rem;
-  --space-3xl: 6.5rem;
-  --radius-card: 10px;
-  --radius-pill: 999px;
-  --radius-input: 8px;
-  --page-max: 80rem;
+    /* paleta (ver tabla §3), badges por nivel, estrellas amarillas */
+    --font-display: "Instrument Serif", ui-serif, Georgia, serif;
+    --font-body: "Geist", ui-sans-serif, system-ui, sans-serif;
+    --font-label: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+    --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+    --text-display: clamp(2.5rem, 5vw + 1rem, 4.5rem);
+    --space-2xs: 0.25rem;
+    --space-md: 1rem;
+    --space-xl: 2.5rem;
+    --space-3xl: 6.5rem;
+    --radius-card: 10px;
+    --radius-pill: 999px;
+    --radius-input: 8px;
+    --page-max: 80rem;
 }
 ```
 
