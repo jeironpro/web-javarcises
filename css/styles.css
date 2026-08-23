@@ -1042,7 +1042,7 @@ em::after {
     display: flex;
     flex-direction: column;
     gap: var(--space-2xl);
-    max-width: 46rem;
+    max-width: min(46rem, calc(100vw - 3rem));
     margin-inline: auto;
 }
 
