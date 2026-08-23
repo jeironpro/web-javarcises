@@ -6,4 +6,4 @@ package-lock.json
 triviales/
 problemas-diseno/
 # SVG (Prettier no tiene parser)
-favicon.svg
+icons/

@@ -49,7 +49,7 @@ El CI (GitHub Actions) ejecuta lint y tests en cada push/PR a `main`.
 | Ruta                              | Descripción                                    |
 | --------------------------------- | ---------------------------------------------- |
 | `index.html`                      | Página principal (semántica, accesible)        |
-| `favicon.svg`                     | Favicon de la marca (taza de café de Java)     |
+| `icons/favicon.svg`               | Favicon de la marca (taza de café de Java)     |
 | `css/styles.css`                  | Estilos con tokens (tema Lumen claro)          |
 | `js/app.js`                       | Estado, filtros, paginación y routing por hash |
 | `js/render.js`                    | Renderizado seguro a DOM (sin `innerHTML`)     |
