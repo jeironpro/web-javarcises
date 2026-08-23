@@ -179,14 +179,6 @@ export function renderBloques(bloques) {
   titulo.textContent = item.titulo;
   enlace.append(titulo);
 
-  // Categoría solo en los problemas de diseño.
-  if (item.categoria) {
-    const categoria = document.createElement("p");
-    categoria.className = "ficha__categoria";
-    categoria.textContent = item.categoria;
-    enlace.append(categoria);
-  }
-
   // Metadatos: badge de nivel (con color por nivel) + dificultad.
   const meta = document.createElement("div");
   meta.className = "ficha__meta";
@@ -196,18 +188,21 @@ export function renderBloques(bloques) {
   meta.append(nivel, renderEstrellas(item.dificultad));
   enlace.append(meta);
 
-  // Temas como chips (se quitan los backticks de marcado de código del markdown).
-  if (item.temas.length > 0) {
-    const temas = document.createElement("ul");
-    temas.className = "ficha__temas";
-    for (const tema of item.temas) {
-      const chip = document.createElement("li");
-      chip.className = "chip";
-      chip.textContent = tema.replaceAll("`", "");
-      temas.append(chip);
+  // Fila de chips: en los ejercicios son los temas; en los problemas de diseño,
+  // la categoría. Así ambas fichas comparten exactamente la misma estructura.
+  const temas = document.createElement("ul");
+  temas.className = "ficha__temas";
+  const chips = item.coleccion === "problemas" ? [item.categoria] : item.temas;
+  for (const texto of chips) {
+    if (!texto) {
+      continue;
     }
-    enlace.append(temas);
+    const chip = document.createElement("li");
+    chip.className = "chip";
+    chip.textContent = texto.replaceAll("`", "");
+    temas.append(chip);
   }
+  enlace.append(temas);
 
   const pie = document.createElement("p");
   pie.className = "ficha__pie";

@@ -824,14 +824,6 @@ em::after {
   overflow-wrap: anywhere;
 }
 
-.ficha__categoria {
-  font-family: var(--font-label);
-  font-size: 11px;
-  letter-spacing: var(--tracking-label);
-  text-transform: uppercase;
-  color: var(--color-muted);
-}
-
 .ficha__meta {
   display: flex;
   flex-wrap: wrap;
