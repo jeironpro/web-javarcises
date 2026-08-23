@@ -571,11 +571,18 @@ em::after {
   }
 }
 
-/* --- Modo detalle: sin navegación ni pie (foco en la ficha) -------------------------------- */
+/* --- Modo detalle: solo la ficha (sin nav, hero, stats, cabecera ni pie) ------------------- */
 
 .modo-detalle .nav,
+.modo-detalle .hero,
+.modo-detalle .stats,
+.modo-detalle .seccion__cabecera,
 .modo-detalle .pie {
   display: none;
+}
+
+.modo-detalle .seccion {
+  padding-block-start: clamp(2rem, 6vh, 4rem);
 }
 
 /* --- Secciones ------------------------------------------------------------------------ */
