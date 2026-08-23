@@ -571,6 +571,13 @@ em::after {
   }
 }
 
+/* --- Modo detalle: sin navegación ni pie (foco en la ficha) -------------------------------- */
+
+.modo-detalle .nav,
+.modo-detalle .pie {
+  display: none;
+}
+
 /* --- Secciones ------------------------------------------------------------------------ */
 
 .seccion {
@@ -611,17 +618,15 @@ em::after {
   gap: var(--space-lg);
 }
 
-/* --- Barra de filtros ------------------------------------------------------------------- */
+/* --- Barra de filtros: banda del tema (sin caja de tarjeta) ------------------------------ */
 
 .barra {
   display: flex;
   flex-wrap: wrap;
   align-items: flex-end;
   gap: var(--space-lg);
-  padding: var(--space-lg);
-  border: 1px solid var(--color-rule);
-  border-radius: var(--radius-card);
-  background: var(--color-paper-2);
+  padding-block: var(--space-lg);
+  border-block: 1px solid var(--color-rule);
 }
 
 /* Pestañas de colección: control segmentado tipo píldora */
@@ -683,8 +688,8 @@ em::after {
 .campo__entrada {
   min-height: 44px;
   border: 1px solid var(--color-rule-2);
-  border-radius: var(--radius-input);
-  background: var(--color-paper);
+  border-radius: var(--radius-pill);
+  background: var(--color-paper-2);
 }
 
 .campo select {
